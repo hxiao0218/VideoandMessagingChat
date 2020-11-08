@@ -1,20 +1,32 @@
+/* eslint-disable consistent-return */
 /* eslint-disable no-console */
 /* eslint-disable import/prefer-default-export */
 const axios = require('axios');
+const mockData = require('../__mock__/getData_Mock.json');
 
 export const getMessages = async (recipientId, contactId) => {
   // TODO: implement endpoint
   console.log(recipientId, contactId);
+  const res = mockData.getMessagesResp;
+  if (res.status !== 200) {
+    console.log('[getContacts error]', res.error);
+    return null;
+  }
+  if (!res.data || !res.data.data) return null;
+  return res.data.data;
 };
 
 export const getContacts = async () => {
-  const res = await axios.get('http://localhost:8080/users');
+  // TODO: remove mock data
+  // const res = await axios.get('http://localhost:8080/users');
+  const res = mockData.getContactsResp;
   // return res.data.data;
   if (res.status !== 200) {
     console.log('[getContacts error]', res.error);
     return null;
   }
   if (!res.data || !res.data.data) return null;
+  console.log(res.data.data);
   return res.data.data;
 };
 

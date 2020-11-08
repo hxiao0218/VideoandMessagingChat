@@ -7,6 +7,7 @@ import { getContacts, joinChat, sendMessage } from '../network/getData';
 import { setupWSConnection } from '../network/notifications';
 import ContactComponent from './ContactComponent';
 import MessageComponent from './MessageComponent';
+import mockData from '../__mock__/getData_Mock.json';
 
 function MainView({ user }) {
   const [data, setData] = useState([]);
@@ -21,8 +22,8 @@ function MainView({ user }) {
   useEffect(() => {
     const tmpArr = contactList.map((contact) => {
       const obj = {
-        key: contact.toLowerCase(),
-        value: contact.toLowerCase(),
+        key: contact.username.toLowerCase(),
+        value: contact.username.toLowerCase(),
       };
       return obj;
     });
@@ -54,7 +55,7 @@ function MainView({ user }) {
     <Router>
       <div className="MainView">
         <ContactComponent contactList={contactList} data={data} />
-        <MessageComponent user={user} />
+        <MessageComponent user={user || mockData.mockUser} />
       </div>
     </Router>
   );

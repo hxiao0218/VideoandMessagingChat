@@ -1,7 +1,8 @@
 /* eslint-disable react/jsx-filename-extension */
 /* eslint-disable react/react-in-jsx-scope */
+import logo from './logo.svg';
 import './App.css';
-import MainView from './components/MainView';
+import MainView from '../components/MainView';
 
 function App() {
   return (

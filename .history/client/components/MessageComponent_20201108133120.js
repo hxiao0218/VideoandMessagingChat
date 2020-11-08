@@ -31,12 +31,13 @@ function MessageChat({ user }) {
   useEffect(() => {
     const tmpObj = messageList.map((msg, index) => new Message({
       id: index + 1,
-      message: msg,
+      // TODO: confirm schema
+      message: msg.message,
     }));
     setMessageObj(tmpObj);
   }, [messageList]);
   // fetch previous messages
-  // TODO: check contact obj
+  // TODO: check contact schema
   useEffect(() => {
     const fetchMessages = async () => {
       const resp = await getMessages(recipientId, userId);

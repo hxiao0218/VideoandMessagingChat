@@ -1,0 +1,32 @@
+{
+  "getMessagesResp": {
+    "status": 200,
+    "data": {
+      "data": [{
+        "id": 1,
+        "message": "first message hello!"
+      }, {
+        "id": 2,
+        "message": "second message hello!"
+      }, {
+        "id": 3,
+        "message": "third message hello!"
+      }]
+    }
+  }, 
+  "getContactsResp": {
+    "status": 200,
+    "data": {
+      "data": [{
+        "id": 1,
+        "username": "Allen"
+      }, {
+        "id": 2,
+        "username": "Bianca"
+      }, {
+        "id": 3,
+        "username": "Cisco"
+      }]
+    }
+  }
+}

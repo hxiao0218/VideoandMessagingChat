@@ -1,0 +1,14 @@
+{
+  "getContactsResp": {
+    "status": 200,
+    "data": {
+      "data:" [{
+        "id": 1,
+        "message": "first message hello!"
+      }, {
+        "id": 2,
+        "message": "second message aloha!"
+      }]
+    }
+  }
+}
