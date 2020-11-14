@@ -1,0 +1,9 @@
+#curMessage {
+  /* flex-grow: 1; */
+  width: 'calc(100% - 250px)';
+}
+
+#messageBar {
+  margin-left: 250px;
+  width: 'calc(100% - 250px)';
+}

@@ -1,0 +1,20 @@
+#curMessage {
+  /* flex-grow: 1; */
+  width: 'calc(100% - 250px)';
+  top: 0;
+  flex: 1 0 auto;
+  height: 100%;
+  display: 'flex';
+  outline: 0;
+  position: fixed;
+  flex-direction: column;
+}
+
+#messageBar {
+  margin-left: 250px;
+  width: 'calc(100% - 250px)';
+}
+
+#content {
+  flexGrow: 1;
+}

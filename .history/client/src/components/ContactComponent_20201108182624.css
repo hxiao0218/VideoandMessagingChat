@@ -1,0 +1,27 @@
+.drawerBar {
+  width: 250px;
+  /* flex-shrink: 0; */
+  background-color: #212121;
+  /* top: 0;
+  flex: 1 0 auto;
+  height: 100%;
+  display: 'flex';
+  outline: 0;
+  z-index: 1200;
+  position: fixed;
+  overflow-y: auto;
+  flex-direction: column; */
+}
+
+/* .drawerPaper {
+  width: 250px;
+} */
+
+#contactList {
+  font-size: 0.875rem;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: 0.01071em;
+  color: #fff;
+}
