@@ -1,15 +1,13 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
-/* eslint-disable react/jsx-filename-extension */
-import React, { useState, useContext } from 'react';
-import { useHistory } from 'react-router-dom';
-import Axios from 'axios';
-import UserContext from '../../context/UserContext';
-import ErrorNotice from '../../Errormsg/ErrorNotice';
+import React, { useState, useContext } from "react";
+import { useHistory } from "react-router-dom";
+import UserContext from "../../context/UserContext";
+import ErrorNotice from "../../Errormsg/ErrorNotice";
+import Axios from "axios";
 
 export default function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const { setUserData } = useContext(UserContext);
   const history = useHistory();
@@ -22,17 +20,16 @@ export default function Login() {
         password,
       };
       const loginRes = await Axios.post(
-        'http://localhost:5000/users/login',
-        loginUser,
+        "http://localhost:5000/users/login",
+        loginUser
       );
       setUserData({
         token: loginRes.data.token,
         user: loginRes.data.user,
       });
-      localStorage.setItem('auth-token', loginRes.data.token);
-      history.push('/');
+      localStorage.setItem("auth-token", loginRes.data.token);
+      history.push("/");
     } catch (err) {
-      // eslint-disable-next-line no-unused-expressions
       err.response.data.msg && setError(err.response.data.msg);
     }
   };

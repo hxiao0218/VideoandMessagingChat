@@ -1,8 +1,4 @@
-/* eslint-disable react/button-has-type */
-/* eslint-disable react/destructuring-assignment */
-/* eslint-disable react/prop-types */
-/* eslint-disable react/jsx-filename-extension */
-import React from 'react';
+import React from "react";
 
 export default function ErrorNotice(props) {
   return (
