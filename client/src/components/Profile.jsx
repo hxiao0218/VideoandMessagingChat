@@ -1,32 +1,33 @@
-import React, { Component } from "react";
-import Picture from "./Picture";
+import React, { Component } from 'react';
+import Picture from './Picture';
 
 class Profile extends Component {
   constructor() {
     super();
     this.state = {
-      name: "Kailun Li",
-      locked: "Public",
+      name: 'Kailun Li',
       friendscount: 10,
-      birthday: "" + new Date(),
-      created_at: "" + new Date(),
-      info: true
+      birthday: `${new Date()}`,
+      createdAt: `${new Date()}`,
     };
   }
 
-  changepassword = () => {
-    return function () {
-      let password = prompt("Please enter your password");
-    };
-  };
+  // changepassword = () => {
+  //   return function () {
+  //     let password = prompt("Please enter your password");
+  //   };
+  // };
 
-  deactive = () => {
-    return function () {
-      alert("Account deactived! Please refresh the page!");
-    };
-  };
+  // deactive = () => {
+  //   return function () {
+  //     alert("Account deactived! Please refresh the page!");
+  //   };
+  // };
 
   render() {
+    const {
+      name, friendscount, birthday, createdAt,
+    } = this.state;
     return (
       <div className="container">
         <div className="row">
@@ -36,15 +37,17 @@ class Profile extends Component {
                 <div className="card-title mb-4">
                   <div className="d-flex justify-content-start">
                     <Picture />
-                    <div className="middle" style={{ width: "70%" }}>
+                    <div className="middle" style={{ width: '70%' }}>
                       <h2
                         className="d-block"
-                        style={{ fontsize: "1.5rem", fontWeight: "bold" }}
+                        style={{ fontsize: '1.5rem', fontWeight: 'bold' }}
                       >
-                        {this.state.name}
+                        {name}
                       </h2>
                       <h6 className="d-block">
-                        {this.state.friendscount} friends
+                        {friendscount}
+                        {' '}
+                        friends
                       </h6>
                     </div>
                   </div>
@@ -64,44 +67,45 @@ class Profile extends Component {
                       >
                         <div className="row">
                           <div className="col-sm-3 col-md-2 col-5">
-                            <label style={{ fontWeight: "bold" }}>
+                            <div>
                               Full Name
-                            </label>
+                            </div>
                           </div>
                           <div className="col-md-8 col-6">
-                            {this.state.name}
+                            {name}
                           </div>
                         </div>
                         <hr />
                         <div className="row">
                           <div className="col-sm-3 col-md-2 col-5">
-                            <label style={{ fontWeight: "bold" }}>
+                            <div>
                               Birthday
-                            </label>
+                            </div>
                           </div>
                           <div className="col-md-8 col-6">
-                            {this.state.birthday}
-                          </div>
-                        </div>
- 
-                        <hr />
-                        <div className="row">
-                          <div className="col-sm-3 col-md-2 col-5">
-                            <label style={{ fontWeight: "bold" }}>
-                              Joined at
-                            </label>
-                          </div>
-                          <div className="col-md-8 col-6">
-                            {this.state.created_at}
+                            {birthday}
                           </div>
                         </div>
 
                         <hr />
-                        <button type="change password" onClick={this.changepassword()}>
-                          Change Password
+                        <div className="row">
+                          <div className="col-sm-3 col-md-2 col-5">
+                            <div>
+                              Joined at
+                            </div>
+                          </div>
+                          <div className="col-md-8 col-6">
+                            {createdAt}
+                          </div>
+                        </div>
+                        <hr />
+                        <button id="change" type="button">
+                          <span>Change Password</span>
                         </button>
                         <hr />
-                        <button type="deactivate" onClick={this.deactive()}>Deactive Account</button>
+                        <button id="deactive" type="button">
+                          <span>Deactive Account</span>
+                        </button>
                       </div>
                     </div>
                   </div>

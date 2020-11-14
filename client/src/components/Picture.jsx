@@ -1,38 +1,41 @@
-import React, { Component } from "react";
-import img from "../images/default.jpg";
+import React, { Component } from 'react';
+import imgDeafault from '../images/default.jpg';
 
 class Picture extends Component {
   constructor() {
     super();
     this.state = {
-      img: img
+      image: imgDeafault,
     };
     this.createImage = this.createImage.bind(this);
     this.onChange = this.onChange.bind(this);
   }
 
   onChange(e) {
-    let files = e.target.files || e.dataTransfer.files;
+    const files = e.target.files || e.dataTransfer.files;
 
     if (!files.length) return;
     this.createImage(files[0]);
   }
 
   createImage(file) {
-    let reader = new FileReader();
+    const reader = new FileReader();
     reader.onload = (e) => {
-      this.setState({ img: e.target.result });
+      this.setState({ image: e.target.result });
     };
     reader.readAsDataURL(file);
   }
 
   render() {
+    const {
+      image,
+    } = this.state;
     return (
       <div>
         <img
-          src={this.state.img}
-          style={{ height: "225px" }}
-          alt={this.state.img}
+          src={image}
+          style={{ height: '225px' }}
+          alt={image}
         />
         <form onSubmit={this.onFormSubmit} encType="multipart/form-data">
           <input
