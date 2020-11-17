@@ -3,8 +3,8 @@
 import React, { useState, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import Axios from 'axios';
-import UserContext from '../../context/UserContext';
-import ErrorNotice from '../../Errormsg/ErrorNotice';
+import UserContext from '../context/UserContext';
+import ErrorNotice from '../Errormsg/ErrorNotice';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -21,16 +21,19 @@ export default function Login() {
         username,
         password,
       };
+      // console.log(loginUser);
       const loginRes = await Axios.post(
         'http://localhost:5000/users/login',
         loginUser,
       );
+      console.log(loginRes);
       setUserData({
         token: loginRes.data.token,
         user: loginRes.data.user,
       });
+      // if (!loggedIn) setLoggedIn(true);
       localStorage.setItem('auth-token', loginRes.data.token);
-      history.push('/');
+      history.push('/main');
     } catch (err) {
       // eslint-disable-next-line no-unused-expressions
       err.response.data.msg && setError(err.response.data.msg);
