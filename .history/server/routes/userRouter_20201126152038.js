@@ -4,7 +4,6 @@ const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { ObjectId } = require('mongoose').Types;
-const { ObjectID } = require('mongodb');
 const User = require('../models/userModel');
 const Message = require('../models/messageModel');
 const auth = require('../middleware/auth');
@@ -130,30 +129,23 @@ router.get('/contacts', auth, async (req, res) => {
 });
 
 router.get('/messages', auth, async (req, res) => {
-  const user = req.query.username;
-  const contact = req.query.contactname;
+  console.log(req);
+  console.log(req.params);
+  const user = req.params.username;
+  const contact = req.params.contactname;
   // console.log('user, contact', user, contact);
   const messages = await Message.aggregate([
     {
       $match: {
         $or:
       [
-        {
-          $and: [
-            { sender: ObjectId(user) },
-            { receiver: ObjectID(contact) },
-          ],
-        },
-        {
-          $and: [
-            { sender: ObjectId(contact) },
-            { receiver: ObjectID(user) },
-          ],
-        },
-      ],
+        { sender: ObjectId(user) },
+        { receiver: ObjectId(contact) },
+        { sender: ObjectId(contact) },
+        { receiver: ObjectId(user) }],
       },
     },
-    // { $group: { _id: null, count: { $sum: 1 } } },
+    { $group: { _id: null, count: { $sum: 1 } } },
   ]);
   console.log(messages);
   res.status(200).send(messages);

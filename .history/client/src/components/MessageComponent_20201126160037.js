@@ -50,7 +50,6 @@ function MessageChat({ user, contactList }) {
       id: index + 1,
       // TODO: confirm schema
       message: msg.content,
-      senderName: msg.timestamp,
     }));
     setMessageObj(tmpObj);
   }, [messageList]);
@@ -111,7 +110,6 @@ function MessageChat({ user, contactList }) {
             messages={messageObj}
             hasInputField={false}
             bubblesCentered={false}
-            showSenderName
           // JSON: Custom bubble styles
             bubbleStyles={
             {

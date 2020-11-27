@@ -44,12 +44,13 @@ function MainView({ user }) {
       const resp = await getContacts();
       if (!resp) return;
       // TODO: confirm API & make edits as necessary!
-      // filter out self to prevent sending or call self
-      const checkForSelf = (val) => val.username !== userData.user.username;
-      const validContacts = resp.filter(checkForSelf);
-      // console.log(validContacts);
-      setContactList(validContacts);
-      const tmpArr = validContacts.map((contact) => {
+      const validContacts = resp.map((cur) => {
+        if (cur.username === userData.user.username) return;
+        return cur;
+      });
+      console.log(validContacts);
+      setContactList(resp);
+      const tmpArr = resp.map((contact) => {
         const obj = {
           key: contact.id,
           value: contact.username,

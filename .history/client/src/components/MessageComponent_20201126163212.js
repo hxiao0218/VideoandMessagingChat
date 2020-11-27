@@ -111,7 +111,6 @@ function MessageChat({ user, contactList }) {
             messages={messageObj}
             hasInputField={false}
             bubblesCentered={false}
-            showSenderName
           // JSON: Custom bubble styles
             bubbleStyles={
             {

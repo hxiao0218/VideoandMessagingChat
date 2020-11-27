@@ -6,26 +6,25 @@ const axios = require('axios');
 
 export const getMessages = async (recipientId, contactId) => {
   // TODO: implement endpoint
-  console.log('2 ids', recipientId, contactId);
+  console.log(recipientId, contactId);
   const token = localStorage.getItem('auth-token');
   // const params = `username=${contactId}&contactname=${recipientId}`;
   const res = await axios.get(
     'http://localhost:5000/users/messages', {
       headers: { 'x-auth-token': token },
-      params: {
+      data: {
         username: contactId,
         contactname: recipientId,
       },
     },
   );
   // const res = mockData.getMessagesResp;
-  console.log(res);
   if (res.status !== 200) {
     console.log('[getContacts error]', res.error);
     return null;
   }
-  if (!res || !res.data) return null;
-  return res.data;
+  if (!res.data || !res.data.data) return null;
+  return res.data.data;
 };
 
 export const validateAuth = async () => {

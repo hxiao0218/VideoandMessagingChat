@@ -33,24 +33,22 @@ function MessageComponent({ user, contactList }) {
 function MessageChat({ user, contactList }) {
   const { userData } = useContext(UserContext);
   const { contact } = useParams();
-  console.log(contact, userData.user.id);
+  console.log(contact, userData);
   // console.log(contactList);
   const contactName = contactList.find((elem) => elem.id === contact).username || '';
   // const contactName = contactList[Number(contact) - 1].username || '';
   // TODO: check contact obj schema
   console.log('out', contact, user.id);
   const [recipientId, setRecipientId] = useState(contact);
-  const [userId, setUserId] = useState(userData.user.id);
+  const [userId, setUserId] = useState(user.id);
   const [messageList, setMessageList] = useState([]);
   const [messageObj, setMessageObj] = useState([]);
 
   useEffect(() => {
-    // console.log(messageList);
     const tmpObj = messageList.map((msg, index) => new Message({
       id: index + 1,
       // TODO: confirm schema
-      message: msg.content,
-      senderName: msg.timestamp,
+      message: msg.message,
     }));
     setMessageObj(tmpObj);
   }, [messageList]);
@@ -59,11 +57,11 @@ function MessageChat({ user, contactList }) {
   useEffect(() => {
     // const contactID_cache = contact.id;
     // const userID_cache = user.id;
-    // console.log('upper', recipientId, userId);
+    console.log('upper', recipientId, userId);
     const fetchMessages = async () => {
-      // console.log('msg component recipient, userids', recipientId, userId);
+      console.log('msg component recipient, userids', recipientId, userId);
       const resp = await getMessages(recipientId, userId);
-      // console.log(resp);
+      console.log(resp);
       if (!resp) return;
       setMessageList(resp);
     };
@@ -111,7 +109,6 @@ function MessageChat({ user, contactList }) {
             messages={messageObj}
             hasInputField={false}
             bubblesCentered={false}
-            showSenderName
           // JSON: Custom bubble styles
             bubbleStyles={
             {

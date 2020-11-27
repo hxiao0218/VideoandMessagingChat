@@ -45,12 +45,10 @@ function MessageChat({ user, contactList }) {
   const [messageObj, setMessageObj] = useState([]);
 
   useEffect(() => {
-    // console.log(messageList);
     const tmpObj = messageList.map((msg, index) => new Message({
       id: index + 1,
       // TODO: confirm schema
-      message: msg.content,
-      senderName: msg.timestamp,
+      message: msg.message,
     }));
     setMessageObj(tmpObj);
   }, [messageList]);
@@ -59,11 +57,11 @@ function MessageChat({ user, contactList }) {
   useEffect(() => {
     // const contactID_cache = contact.id;
     // const userID_cache = user.id;
-    // console.log('upper', recipientId, userId);
+    console.log('upper', recipientId, userId);
     const fetchMessages = async () => {
-      // console.log('msg component recipient, userids', recipientId, userId);
+      console.log('msg component recipient, userids', recipientId, userId);
       const resp = await getMessages(recipientId, userId);
-      // console.log(resp);
+      console.log(resp);
       if (!resp) return;
       setMessageList(resp);
     };
@@ -111,7 +109,6 @@ function MessageChat({ user, contactList }) {
             messages={messageObj}
             hasInputField={false}
             bubblesCentered={false}
-            showSenderName
           // JSON: Custom bubble styles
             bubbleStyles={
             {

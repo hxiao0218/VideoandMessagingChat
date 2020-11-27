@@ -1,4 +1,3 @@
-/* eslint-disable consistent-return */
 /* eslint-disable react/prop-types */
 /* eslint-disable react/jsx-filename-extension */
 /* eslint-disable no-unused-vars */
@@ -21,7 +20,7 @@ function MainView({ user }) {
   const [numMessages, setNumMessages] = useState(0); // number of messages sent and received
   const texts = useRef([]); // tmp storage of messages
   const { userData } = useContext(UserContext);
-  // console.log(userData);
+  console.log(userData);
 
   const updateContacts = () => setNumContacts((contacts) => contacts + 1);
   const updateMessages = () => setNumMessages((messages) => messages + 1);
@@ -44,12 +43,8 @@ function MainView({ user }) {
       const resp = await getContacts();
       if (!resp) return;
       // TODO: confirm API & make edits as necessary!
-      // filter out self to prevent sending or call self
-      const checkForSelf = (val) => val.username !== userData.user.username;
-      const validContacts = resp.filter(checkForSelf);
-      // console.log(validContacts);
-      setContactList(validContacts);
-      const tmpArr = validContacts.map((contact) => {
+      setContactList(resp);
+      const tmpArr = resp.map((contact) => {
         const obj = {
           key: contact.id,
           value: contact.username,

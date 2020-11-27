@@ -2,30 +2,18 @@
 /* eslint-disable no-console */
 /* eslint-disable import/prefer-default-export */
 const axios = require('axios');
-// const mockData = require('../__mock__/getData_Mock.json');
+const mockData = require('../__mock__/getData_Mock.json');
 
 export const getMessages = async (recipientId, contactId) => {
   // TODO: implement endpoint
-  console.log('2 ids', recipientId, contactId);
-  const token = localStorage.getItem('auth-token');
-  // const params = `username=${contactId}&contactname=${recipientId}`;
-  const res = await axios.get(
-    'http://localhost:5000/users/messages', {
-      headers: { 'x-auth-token': token },
-      params: {
-        username: contactId,
-        contactname: recipientId,
-      },
-    },
-  );
-  // const res = mockData.getMessagesResp;
-  console.log(res);
+  console.log(recipientId, contactId);
+  const res = mockData.getMessagesResp;
   if (res.status !== 200) {
     console.log('[getContacts error]', res.error);
     return null;
   }
-  if (!res || !res.data) return null;
-  return res.data;
+  if (!res.data || !res.data.data) return null;
+  return res.data.data;
 };
 
 export const validateAuth = async () => {
@@ -48,7 +36,7 @@ export const getContacts = async () => {
   const res = await axios.get('http://localhost:5000/users/contacts', {
     headers: { 'x-auth-token': token },
   });
-  // console.log(res);
+  console.log(res);
   // const res = mockData.getContactsResp;
   // return res.data.data;
   if (res.status !== 200) {
@@ -56,7 +44,7 @@ export const getContacts = async () => {
     return null;
   }
   if (!res.data) return null;
-  // console.log(res.data);
+  console.log(res.data);
   return res.data;
 };
 

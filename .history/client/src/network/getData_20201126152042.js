@@ -19,13 +19,12 @@ export const getMessages = async (recipientId, contactId) => {
     },
   );
   // const res = mockData.getMessagesResp;
-  console.log(res);
   if (res.status !== 200) {
     console.log('[getContacts error]', res.error);
     return null;
   }
-  if (!res || !res.data) return null;
-  return res.data;
+  if (!res.data || !res.data.data) return null;
+  return res.data.data;
 };
 
 export const validateAuth = async () => {

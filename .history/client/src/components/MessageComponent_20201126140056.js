@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-use-before-define */
@@ -10,11 +9,8 @@ import {
   AppBar, Divider, Toolbar, Typography,
 } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
-import {
-  useEffect, useRef, useState, useContext,
-} from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getMessages, sendMessage } from '../network/getData';
-import UserContext from '../context/UserContext';
 import './MessageComponent.css';
 
 function MessageComponent({ user, contactList }) {
@@ -31,44 +27,38 @@ function MessageComponent({ user, contactList }) {
 }
 
 function MessageChat({ user, contactList }) {
-  const { userData } = useContext(UserContext);
   const { contact } = useParams();
-  console.log(contact, userData.user.id);
+  const contactID = contact.id;
+  console.log(contact);
   // console.log(contactList);
   const contactName = contactList.find((elem) => elem.id === contact).username || '';
   // const contactName = contactList[Number(contact) - 1].username || '';
   // TODO: check contact obj schema
-  console.log('out', contact, user.id);
-  const [recipientId, setRecipientId] = useState(contact);
-  const [userId, setUserId] = useState(userData.user.id);
+  const [recipientId, setRecipientId] = useState(contactID);
+  const [userId, setUserId] = useState(user.id);
   const [messageList, setMessageList] = useState([]);
   const [messageObj, setMessageObj] = useState([]);
 
   useEffect(() => {
-    // console.log(messageList);
     const tmpObj = messageList.map((msg, index) => new Message({
       id: index + 1,
       // TODO: confirm schema
-      message: msg.content,
-      senderName: msg.timestamp,
+      message: msg.message,
     }));
     setMessageObj(tmpObj);
   }, [messageList]);
   // fetch previous messages
   // TODO: check contact schema
   useEffect(() => {
-    // const contactID_cache = contact.id;
-    // const userID_cache = user.id;
-    // console.log('upper', recipientId, userId);
     const fetchMessages = async () => {
-      // console.log('msg component recipient, userids', recipientId, userId);
+      console.log(recipientId, userId);
       const resp = await getMessages(recipientId, userId);
-      // console.log(resp);
+      console.log(resp);
       if (!resp) return;
       setMessageList(resp);
     };
     fetchMessages();
-  }, [recipientId, userId]);
+  }, [userId, recipientId]);
 
   const send = () => {
     const message = document.getElementById('msgInput').value;
@@ -111,7 +101,6 @@ function MessageChat({ user, contactList }) {
             messages={messageObj}
             hasInputField={false}
             bubblesCentered={false}
-            showSenderName
           // JSON: Custom bubble styles
             bubbleStyles={
             {
