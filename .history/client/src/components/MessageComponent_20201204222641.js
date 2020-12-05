@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/media-has-caption */
 /* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable no-lonely-if */
@@ -111,46 +110,10 @@ function MessageChat({ user, contactList }) {
           senderName: msg.timestamp,
         });
       } if (msg.content_type.match(contentTypeRegex.video)) { // process video bubble
-        const videoComponent = (
-          <a
-            target="_blank"
-            href={msg.mediaURL}
-          >
-            <video controls style={imgStyle}>
-              <source src={msg.mediaURL} type={msg.content_type} />
-              Your browser does not support the video tag.
-            </video>
-          </a>
-        );
-        return new Message({
-          id: (msg.sender === userData.user.id) ? 0 : 1,
-          message: videoComponent,
-          senderName: msg.timestamp,
-        });
+
       } if (msg.content_type.match(contentTypeRegex.audio)) { // process audio bubble
-        const audioComponent = (
-          <a
-            target="_blank"
-            href={msg.mediaURL}
-          >
-            <audio
-              controls
-              src={msg.mediaURL}
-            >
-              Your browser does not support the
-              <code>audio</code>
-              {' '}
-              element.
-            </audio>
-          </a>
-        );
-        return new Message({
-          id: (msg.sender === userData.user.id) ? 0 : 1,
-          message: audioComponent,
-          senderName: msg.timestamp,
-        });
+
       }
-      return null;
     });
     setMessageObj(tmpObj);
   }, [messageList]);

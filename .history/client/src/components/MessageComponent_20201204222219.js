@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/media-has-caption */
 /* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable no-lonely-if */
@@ -80,12 +79,6 @@ function MessageChat({ user, contactList }) {
     overflow: 'scroll',
   };
 
-  const contentTypeRegex = {
-    photo: /^image/,
-    video: /^video/,
-    audio: /^audio/,
-  };
-
   useEffect(() => {
     console.log('[messageList update]: ', messageList);
     const tmpObj = messageList.map((msg) => {
@@ -95,58 +88,21 @@ function MessageChat({ user, contactList }) {
           message: msg.content,
           senderName: msg.timestamp,
         });
-      } if (msg.content_type.match(contentTypeRegex.photo)) { // process image bubble
+      } if (msg.content_type === 'image/png') {
         console.log(msg);
         const imageComponent = (
+          // <div className="mediaBox" style={mediaBoxStyle}>
           <a
             target="_blank"
             href={msg.mediaURL}
           >
             <img src={msg.mediaURL} alt={msg.content_type} style={imgStyle} />
           </a>
+          // </div>
         );
         return new Message({
           id: (msg.sender === userData.user.id) ? 0 : 1,
           message: imageComponent,
-          senderName: msg.timestamp,
-        });
-      } if (msg.content_type.match(contentTypeRegex.video)) { // process video bubble
-        const videoComponent = (
-          <a
-            target="_blank"
-            href={msg.mediaURL}
-          >
-            <video controls style={imgStyle}>
-              <source src={msg.mediaURL} type={msg.content_type} />
-              Your browser does not support the video tag.
-            </video>
-          </a>
-        );
-        return new Message({
-          id: (msg.sender === userData.user.id) ? 0 : 1,
-          message: videoComponent,
-          senderName: msg.timestamp,
-        });
-      } if (msg.content_type.match(contentTypeRegex.audio)) { // process audio bubble
-        const audioComponent = (
-          <a
-            target="_blank"
-            href={msg.mediaURL}
-          >
-            <audio
-              controls
-              src={msg.mediaURL}
-            >
-              Your browser does not support the
-              <code>audio</code>
-              {' '}
-              element.
-            </audio>
-          </a>
-        );
-        return new Message({
-          id: (msg.sender === userData.user.id) ? 0 : 1,
-          message: audioComponent,
           senderName: msg.timestamp,
         });
       }

@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/media-has-caption */
 /* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable no-lonely-if */
@@ -60,7 +59,7 @@ function MessageChat({ user, contactList }) {
   const [conversationId, setConversationId] = useState(contactSID);
   const [messageList, setMessageList] = useState([]);
   const [messageObj, setMessageObj] = useState([]);
-  // const [fileType, setFileType] = useState('');
+  const [fileType, setFileType] = useState('');
   const [inHover, setHover] = useState(false);
   const [conversationsReady, setConversationsReady] = useState(false);
   const [chatClient, setChatClient] = useState({});
@@ -80,12 +79,6 @@ function MessageChat({ user, contactList }) {
     overflow: 'scroll',
   };
 
-  const contentTypeRegex = {
-    photo: /^image/,
-    video: /^video/,
-    audio: /^audio/,
-  };
-
   useEffect(() => {
     console.log('[messageList update]: ', messageList);
     const tmpObj = messageList.map((msg) => {
@@ -95,58 +88,21 @@ function MessageChat({ user, contactList }) {
           message: msg.content,
           senderName: msg.timestamp,
         });
-      } if (msg.content_type.match(contentTypeRegex.photo)) { // process image bubble
+      } if (msg.content_type === 'image/png') {
         console.log(msg);
         const imageComponent = (
+          // <div className="mediaBox" style={mediaBoxStyle}>
           <a
             target="_blank"
             href={msg.mediaURL}
           >
             <img src={msg.mediaURL} alt={msg.content_type} style={imgStyle} />
           </a>
+          // </div>
         );
         return new Message({
           id: (msg.sender === userData.user.id) ? 0 : 1,
           message: imageComponent,
-          senderName: msg.timestamp,
-        });
-      } if (msg.content_type.match(contentTypeRegex.video)) { // process video bubble
-        const videoComponent = (
-          <a
-            target="_blank"
-            href={msg.mediaURL}
-          >
-            <video controls style={imgStyle}>
-              <source src={msg.mediaURL} type={msg.content_type} />
-              Your browser does not support the video tag.
-            </video>
-          </a>
-        );
-        return new Message({
-          id: (msg.sender === userData.user.id) ? 0 : 1,
-          message: videoComponent,
-          senderName: msg.timestamp,
-        });
-      } if (msg.content_type.match(contentTypeRegex.audio)) { // process audio bubble
-        const audioComponent = (
-          <a
-            target="_blank"
-            href={msg.mediaURL}
-          >
-            <audio
-              controls
-              src={msg.mediaURL}
-            >
-              Your browser does not support the
-              <code>audio</code>
-              {' '}
-              element.
-            </audio>
-          </a>
-        );
-        return new Message({
-          id: (msg.sender === userData.user.id) ? 0 : 1,
-          message: audioComponent,
           senderName: msg.timestamp,
         });
       }
@@ -278,22 +234,22 @@ function MessageChat({ user, contactList }) {
   const validateFile = (file) => {
     const curSize = ((file.size / 1024) / 1024).toFixed(4); // MB
     const curName = file.name;
-    const validateName = curName.match(validObj.photo)
-      || curName.match(validObj.video) || curName.match(validObj.audio);
+    const validateName = curName.match(validObj[fileType]);
     // console.log('size', curSize, validateName);
-    return (curSize < 20 && validateName);
+    if (curSize >= 20 || !validateName) return false;
+    return true;
   };
 
   const openMenu = () => {
     document.getElementsByClassName('extra-options')[0].style.display = 'block';
   };
 
-  const uploadMedia = async (e) => {
+  const uploadPhoto = async (e) => {
     // access file
     const curFile = e.target.files[0];
     // console.log(curFile);
     // setFile(curFile);
-    // setFileType('photo');
+    setFileType('photo');
     if (!validateFile(curFile)) {
       alert('please enter a valid photo file less than 20 mb!');
     } else {
@@ -301,7 +257,7 @@ function MessageChat({ user, contactList }) {
         const fileReader = new FileReader();
         fileReader.onloadend = async (fe) => {
           const arrayBuffer = fe.target.result;
-          const imageType = curFile.type;
+          const imageType = 'image/png';
           const mediaSID = await twilioMediaUpload(arrayBuffer, imageType);
           sendTwilioMessage(userId, mediaSID, conversationId);
         };
@@ -378,7 +334,7 @@ function MessageChat({ user, contactList }) {
                 id="upload-photo"
                 name="upload-photo"
                 type="file"
-                onChange={uploadMedia}
+                onChange={uploadPhoto}
               />
               <Fab variant="extended" color="secondary" size="small" component="span" aria-label="add" style={inputStyles.buttonStyle}>
                 <AddIcon />
@@ -386,34 +342,16 @@ function MessageChat({ user, contactList }) {
                 Photo
               </Fab>
             </label>
-            <label htmlFor="upload-video">
-              <input
-                style={{ display: 'none' }}
-                id="upload-video"
-                name="upload-video"
-                type="file"
-                onChange={uploadMedia}
-              />
-              <Fab variant="extended" color="secondary" size="small" component="span" aria-label="add" style={inputStyles.buttonStyle}>
-                <AddIcon />
-                {' '}
-                Video
-              </Fab>
-            </label>
-            <label htmlFor="upload-audio">
-              <input
-                style={{ display: 'none' }}
-                id="upload-audio"
-                name="upload-audio"
-                type="file"
-                onChange={uploadMedia}
-              />
-              <Fab variant="extended" color="secondary" size="small" component="span" aria-label="add" style={inputStyles.buttonStyle}>
-                <AddIcon />
-                {' '}
-                Audio
-              </Fab>
-            </label>
+            <Fab variant="extended" color="secondary" size="small" component="span" aria-label="add" style={inputStyles.buttonStyle}>
+              <AddIcon />
+              {' '}
+              Video
+            </Fab>
+            <Fab variant="extended" color="secondary" size="small" component="span" aria-label="add" style={inputStyles.buttonStyle}>
+              <AddIcon />
+              {' '}
+              Audio
+            </Fab>
           </div>
           )}
           <div className="chat-input" style={inputStyles.chatInput}>

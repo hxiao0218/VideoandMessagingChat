@@ -150,7 +150,6 @@ function MessageChat({ user, contactList }) {
           senderName: msg.timestamp,
         });
       }
-      return null;
     });
     setMessageObj(tmpObj);
   }, [messageList]);
