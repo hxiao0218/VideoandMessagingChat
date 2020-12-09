@@ -5,6 +5,7 @@ import { useHistory } from 'react-router-dom';
 import Axios from 'axios';
 import UserContext from '../context/UserContext';
 import ErrorNotice from '../Errormsg/ErrorNotice';
+import { retrieveToken } from '../network/getData';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -27,12 +28,16 @@ const Login = () => {
         loginUser,
       );
       console.log(loginRes);
+      const twilioRes = await retrieveToken(loginRes.data.user.id);
+      console.log(twilioRes);
       setUserData({
         token: loginRes.data.token,
         user: loginRes.data.user,
+        twilioToken: twilioRes.token,
       });
       // if (!loggedIn) setLoggedIn(true);
       localStorage.setItem('auth-token', loginRes.data.token);
+      localStorage.setItem('twilio-token', twilioRes.token);
       history.push('/main');
     } catch (err) {
       // eslint-disable-next-line no-unused-expressions

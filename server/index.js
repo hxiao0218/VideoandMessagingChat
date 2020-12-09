@@ -1,6 +1,10 @@
 /* eslint-disable no-console */
 const express = require('express');
 const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const multer = require('multer');
+
+const upload = multer();
 const cors = require('cors');
 require('dotenv').config();
 
@@ -8,6 +12,9 @@ require('dotenv').config();
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(upload.array());
+app.use(express.static('public'));
 
 // heroku enabled/assigned port variable or local host 5000
 const PORT = process.env.PORT || 5000;
@@ -33,3 +40,4 @@ mongoose
 
 // set up routes
 app.use('/users', require('./routes/userRouter'));
+app.use('/messages', require('./routes/twilioRouter'));
