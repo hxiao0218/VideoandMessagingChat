@@ -370,8 +370,8 @@ function MessageChat({ user, contactList }) {
     const uploadButton = document.getElementById('uploadButton');
     uploadButton.style.display = 'block';
     const uploadHelper = async () => {
-      const mediaType = recordedBlob.blob.type;
-      const arrayBuffer = await recordedBlob.blob.arrayBuffer();
+      const mediaType = 'audio/ogg';
+      const arrayBuffer = await recordedBlob.arrayBuffer();
       console.log('[onData] arrayBuffer', arrayBuffer);
       const mediaSID = await twilioMediaUpload(arrayBuffer, mediaType);
       console.log('[onData] twilio media upload: ', mediaSID);
@@ -391,6 +391,7 @@ function MessageChat({ user, contactList }) {
         record={record}
         className="sound-wave"
         onStop={onStop}
+        onData={onData}
         strokeColor="#333333"
         backgroundColor="#000000"
         mimeType="audio/mp3"

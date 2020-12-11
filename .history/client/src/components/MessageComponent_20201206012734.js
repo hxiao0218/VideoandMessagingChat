@@ -11,6 +11,7 @@
 /* eslint-disable react/jsx-filename-extension */
 import { Route, useParams } from 'react-router-dom';
 import { ChatFeed, Message } from 'react-chat-ui';
+import { ReactMic } from 'react-mic';
 import {
   AppBar, Divider, Toolbar, Typography, Input, Fab, Modal,
 } from '@material-ui/core';
@@ -19,13 +20,9 @@ import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import AddIcCallIcon from '@material-ui/icons/AddIcCall';
 import VoicemailIcon from '@material-ui/icons/Voicemail';
-import StopIcon from '@material-ui/icons/Stop';
-import PlayArrowIcon from '@material-ui/icons/PlayArrow';
-import PublishIcon from '@material-ui/icons/Publish';
 import {
   useEffect, useRef, useState, useContext,
 } from 'react';
-import { ReactMic } from 'react-mic';
 import { Client as ConversationsClient } from '@twilio/conversations';
 import {
   getMessages, sendMessage, retrieveToken, createConversation,
@@ -71,14 +68,11 @@ function getModalStyle() {
 const useStyles = makeStyles((theme) => ({
   paper: {
     position: 'absolute',
-    width: 700,
+    width: 400,
     backgroundColor: theme.palette.background.paper,
     border: '2px solid #000',
     boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3),
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
   },
 }));
 
@@ -86,6 +80,7 @@ function MessageChat({ user, contactList }) {
   const classes = useStyles();
   const [modalStyle] = useState(getModalStyle);
   const [open, setOpen] = useState(false);
+  const [record, setRecord] = useState(false);
   const { userData, conversations, setConversations } = useContext(UserContext);
   const { twilioToken } = userData;
   const { contact } = useParams();
@@ -97,13 +92,13 @@ function MessageChat({ user, contactList }) {
   const [conversationId, setConversationId] = useState(contactSID);
   const [messageList, setMessageList] = useState([]);
   const [messageObj, setMessageObj] = useState([]);
+  // const [fileType, setFileType] = useState('');
   const [inHover, setHover] = useState(false);
   const [conversationsReady, setConversationsReady] = useState(false);
   const [chatClient, setChatClient] = useState({});
   const [programChat, setProgramChat] = useState({});
   const [status, setStatus] = useState('');
   const [statusString, setStatusString] = useState('');
-  const [record, setRecord] = useState(false);
   const didMountRef = useRef(false);
 
   const imgStyle = {
@@ -138,6 +133,29 @@ function MessageChat({ user, contactList }) {
   const stopRecording = () => {
     setRecord(false);
   };
+
+  const onData = (recordedBlob) => {
+    console.log('chunk of real-time data is: ', recordedBlob);
+  };
+
+  const onStop = (recordedBlob) => {
+    console.log('recordedBlob is: ', recordedBlob);
+  };
+
+  const body = (
+    <div>
+      <ReactMic
+        record={record}
+        className="sound-wave"
+        onStop={onStop}
+        onData={onData}
+        strokeColor="#000000"
+        backgroundColor="#212121"
+      />
+      <button onClick={startRecording} type="button">Start</button>
+      <button onClick={stopRecording} type="button">Stop</button>
+    </div>
+  );
 
   useEffect(() => {
     console.log('[messageList update]: ', messageList);
@@ -365,59 +383,6 @@ function MessageChat({ user, contactList }) {
     }
   };
 
-  const onStop = (recordedBlob) => {
-    console.log('recordedBlob is: ', recordedBlob);
-    const uploadButton = document.getElementById('uploadButton');
-    uploadButton.style.display = 'block';
-    const uploadHelper = async () => {
-      const mediaType = recordedBlob.blob.type;
-      const arrayBuffer = await recordedBlob.blob.arrayBuffer();
-      console.log('[onData] arrayBuffer', arrayBuffer);
-      const mediaSID = await twilioMediaUpload(arrayBuffer, mediaType);
-      console.log('[onData] twilio media upload: ', mediaSID);
-      sendTwilioMessage(userId, mediaSID, conversationId);
-    };
-    uploadButton.onclick = uploadHelper;
-  };
-
-  const playButtonStyles = {
-    height: '50px',
-    width: '50px',
-  };
-
-  const body = (
-    <div style={modalStyle} className={classes.paper} id="micWrapper">
-      <ReactMic
-        record={record}
-        className="sound-wave"
-        onStop={onStop}
-        strokeColor="#333333"
-        backgroundColor="#000000"
-        mimeType="audio/mp3"
-      />
-      <br />
-      <button onClick={startRecording} type="button" style={playButtonStyles}>
-        <PlayArrowIcon fontSize="large" />
-        {' '}
-        Start
-      </button>
-      <button onClick={stopRecording} type="button" style={playButtonStyles}>
-        <StopIcon fontSize="large" />
-        {' '}
-        Stop
-      </button>
-      <button id="uploadButton" type="button" style={{ ...playButtonStyles, display: 'none' }}>
-        <PublishIcon fontSize="large" />
-        {' '}
-        Upload
-      </button>
-      {/* <h2 id="simple-modal-title">Text in a modal</h2>
-      <p id="simple-modal-description">
-        Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-      </p> */}
-    </div>
-  );
-
   const inputStyles = {
     chatInput: {
       flex: 1,
@@ -448,14 +413,6 @@ function MessageChat({ user, contactList }) {
           </Typography>
         </Toolbar>
       </AppBar>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
-      >
-        {body}
-      </Modal>
       <main>
         <div className="content">
           <div className="chatFeedContainer">
@@ -540,6 +497,14 @@ function MessageChat({ user, contactList }) {
             <Fab color="primary" size="small" component="span" aria-label="add" style={inputStyles.buttonStyle} onClick={handleOpen}>
               <VoicemailIcon />
             </Fab>
+            <Modal
+              open={open}
+              onClose={handleClose}
+              aria-labelledby="simple-modal-title"
+              aria-describedby="simple-modal-description"
+            >
+              {body}
+            </Modal>
             <input type="text" style={inputStyles.inputStyle} placeholder="input..." id="msgInput" />
             <Button color="primary" size="small" id="sendBtn" onClick={() => send()}>Send</Button>
           </div>

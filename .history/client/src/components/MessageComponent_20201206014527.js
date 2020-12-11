@@ -11,6 +11,7 @@
 /* eslint-disable react/jsx-filename-extension */
 import { Route, useParams } from 'react-router-dom';
 import { ChatFeed, Message } from 'react-chat-ui';
+import AudioRecorder from 'react-audio-recorder';
 import {
   AppBar, Divider, Toolbar, Typography, Input, Fab, Modal,
 } from '@material-ui/core';
@@ -19,13 +20,9 @@ import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import AddIcCallIcon from '@material-ui/icons/AddIcCall';
 import VoicemailIcon from '@material-ui/icons/Voicemail';
-import StopIcon from '@material-ui/icons/Stop';
-import PlayArrowIcon from '@material-ui/icons/PlayArrow';
-import PublishIcon from '@material-ui/icons/Publish';
 import {
   useEffect, useRef, useState, useContext,
 } from 'react';
-import { ReactMic } from 'react-mic';
 import { Client as ConversationsClient } from '@twilio/conversations';
 import {
   getMessages, sendMessage, retrieveToken, createConversation,
@@ -71,14 +68,11 @@ function getModalStyle() {
 const useStyles = makeStyles((theme) => ({
   paper: {
     position: 'absolute',
-    width: 700,
+    width: 400,
     backgroundColor: theme.palette.background.paper,
     border: '2px solid #000',
     boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3),
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
   },
 }));
 
@@ -97,13 +91,13 @@ function MessageChat({ user, contactList }) {
   const [conversationId, setConversationId] = useState(contactSID);
   const [messageList, setMessageList] = useState([]);
   const [messageObj, setMessageObj] = useState([]);
+  // const [fileType, setFileType] = useState('');
   const [inHover, setHover] = useState(false);
   const [conversationsReady, setConversationsReady] = useState(false);
   const [chatClient, setChatClient] = useState({});
   const [programChat, setProgramChat] = useState({});
   const [status, setStatus] = useState('');
   const [statusString, setStatusString] = useState('');
-  const [record, setRecord] = useState(false);
   const didMountRef = useRef(false);
 
   const imgStyle = {
@@ -131,13 +125,19 @@ function MessageChat({ user, contactList }) {
     setOpen(false);
   };
 
-  const startRecording = () => {
-    setRecord(true);
+  const onChange = (recordedBlob) => {
+    console.log('recordedBlob is: ', recordedBlob);
   };
 
-  const stopRecording = () => {
-    setRecord(false);
-  };
+  const body = (
+    <div>
+      {/* <AudioRecorder
+        onChange={onChange}
+        downloadLabel="false"
+      /> */}
+      hi!
+    </div>
+  );
 
   useEffect(() => {
     console.log('[messageList update]: ', messageList);
@@ -364,59 +364,6 @@ function MessageChat({ user, contactList }) {
       }
     }
   };
-
-  const onStop = (recordedBlob) => {
-    console.log('recordedBlob is: ', recordedBlob);
-    const uploadButton = document.getElementById('uploadButton');
-    uploadButton.style.display = 'block';
-    const uploadHelper = async () => {
-      const mediaType = recordedBlob.blob.type;
-      const arrayBuffer = await recordedBlob.blob.arrayBuffer();
-      console.log('[onData] arrayBuffer', arrayBuffer);
-      const mediaSID = await twilioMediaUpload(arrayBuffer, mediaType);
-      console.log('[onData] twilio media upload: ', mediaSID);
-      sendTwilioMessage(userId, mediaSID, conversationId);
-    };
-    uploadButton.onclick = uploadHelper;
-  };
-
-  const playButtonStyles = {
-    height: '50px',
-    width: '50px',
-  };
-
-  const body = (
-    <div style={modalStyle} className={classes.paper} id="micWrapper">
-      <ReactMic
-        record={record}
-        className="sound-wave"
-        onStop={onStop}
-        strokeColor="#333333"
-        backgroundColor="#000000"
-        mimeType="audio/mp3"
-      />
-      <br />
-      <button onClick={startRecording} type="button" style={playButtonStyles}>
-        <PlayArrowIcon fontSize="large" />
-        {' '}
-        Start
-      </button>
-      <button onClick={stopRecording} type="button" style={playButtonStyles}>
-        <StopIcon fontSize="large" />
-        {' '}
-        Stop
-      </button>
-      <button id="uploadButton" type="button" style={{ ...playButtonStyles, display: 'none' }}>
-        <PublishIcon fontSize="large" />
-        {' '}
-        Upload
-      </button>
-      {/* <h2 id="simple-modal-title">Text in a modal</h2>
-      <p id="simple-modal-description">
-        Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-      </p> */}
-    </div>
-  );
 
   const inputStyles = {
     chatInput: {

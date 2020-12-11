@@ -365,19 +365,22 @@ function MessageChat({ user, contactList }) {
     }
   };
 
-  const onStop = (recordedBlob) => {
-    console.log('recordedBlob is: ', recordedBlob);
+  const onData = (recordedBlob) => {
+    console.log('[onData] chunk of real-time data is: ', recordedBlob);
     const uploadButton = document.getElementById('uploadButton');
     uploadButton.style.display = 'block';
     const uploadHelper = async () => {
       const mediaType = recordedBlob.blob.type;
-      const arrayBuffer = await recordedBlob.blob.arrayBuffer();
-      console.log('[onData] arrayBuffer', arrayBuffer);
+      const arrayBuffer = recordedBlob.blob.arrayBuffer();
       const mediaSID = await twilioMediaUpload(arrayBuffer, mediaType);
       console.log('[onData] twilio media upload: ', mediaSID);
       sendTwilioMessage(userId, mediaSID, conversationId);
     };
     uploadButton.onclick = uploadHelper;
+  };
+
+  const onStop = (recordedBlob) => {
+    console.log('recordedBlob is: ', recordedBlob);
   };
 
   const playButtonStyles = {
@@ -391,9 +394,9 @@ function MessageChat({ user, contactList }) {
         record={record}
         className="sound-wave"
         onStop={onStop}
+        onData={onData}
         strokeColor="#333333"
         backgroundColor="#000000"
-        mimeType="audio/mp3"
       />
       <br />
       <button onClick={startRecording} type="button" style={playButtonStyles}>
