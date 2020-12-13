@@ -95,7 +95,7 @@ function MessageChat({ user, contactList }) {
   const contactName = curContact.username || '';
   const contactSID = curContact.sid;
   const contactCID = curContact.cid;
-  const contactUID = curContact.cid;
+  const contactUID = curContact.id;
   const [userId, setUserId] = useState(userData.user.id);
   const [conversationId, setConversationId] = useState(contactSID);
   const [messageList, setMessageList] = useState([]);
@@ -492,7 +492,7 @@ function MessageChat({ user, contactList }) {
       <main>
         <div className="content">
           <div className="chatFeedContainer">
-            {videoChatOn
+            {setVideoChatOn
               ? videoRoomComponent
               : (
                 <ChatFeed

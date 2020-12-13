@@ -60,8 +60,8 @@ function camelCaseKeys(hashmap) {
 }
 
 router.get('/token', (req, res) => {
-  const { identity, room } = req.query;
-  res.status(200).send(tokenGenerator(identity, room));
+  const { id, room } = req.query;
+  res.status(200).send(tokenGenerator(id, room));
 });
 
 router.post('/token', (req, res) => {

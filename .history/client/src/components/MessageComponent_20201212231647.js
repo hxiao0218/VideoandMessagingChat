@@ -95,7 +95,7 @@ function MessageChat({ user, contactList }) {
   const contactName = curContact.username || '';
   const contactSID = curContact.sid;
   const contactCID = curContact.cid;
-  const contactUID = curContact.cid;
+  const contactUID = curContact.id;
   const [userId, setUserId] = useState(userData.user.id);
   const [conversationId, setConversationId] = useState(contactSID);
   const [messageList, setMessageList] = useState([]);
@@ -109,7 +109,6 @@ function MessageChat({ user, contactList }) {
   const [record, setRecord] = useState(false);
   const [videoRoomComponent, setVideoRoomComponent] = useState(null);
   const [curRoomToken, setCurRoomToken] = useState(null);
-  const [videoChatOn, setVideoChatOn] = useState(false);
   const didMountRef = useRef(false);
 
   const imgStyle = {
@@ -330,28 +329,23 @@ function MessageChat({ user, contactList }) {
 
   const handleVideoRoomLogout = useCallback(() => {
     setCurRoomToken(null);
-    setVideoChatOn(false);
-    setVideoRoomComponent(null);
   }, []);
 
   const handleVoiceCall = async () => {
     console.log('contactUID', contactUID);
-    let roomToken = curRoomToken;
     if (!curRoomToken) {
       const res = await getVideoRoomToken(userId, contactUID);
       setCurRoomToken(res.token);
-      roomToken = res.token;
     }
     const newVideoRoomComponent = (
-      <div>
+      <NewWindow>
         <VideoRoom
           roomName={contactUID}
-          token={roomToken}
+          token={curRoomToken}
           handleLogout={handleVideoRoomLogout}
         />
-      </div>
+      </NewWindow>
     );
-    setVideoChatOn(true);
     setVideoRoomComponent(newVideoRoomComponent);
   };
 
@@ -492,16 +486,13 @@ function MessageChat({ user, contactList }) {
       <main>
         <div className="content">
           <div className="chatFeedContainer">
-            {videoChatOn
-              ? videoRoomComponent
-              : (
-                <ChatFeed
-                  messages={messageObj}
-                  hasInputField={false}
-                  bubblesCentered={false}
-                  showSenderName
+            <ChatFeed
+              messages={messageObj}
+              hasInputField={false}
+              bubblesCentered={false}
+              showSenderName
           // JSON: Custom bubble styles
-                  bubbleStyles={
+              bubbleStyles={
             {
               text: {
                 fontSize: 15,
@@ -516,8 +507,7 @@ function MessageChat({ user, contactList }) {
               },
             }
           }
-                />
-              )}
+            />
           </div>
           <Divider />
           <br />
@@ -579,6 +569,9 @@ function MessageChat({ user, contactList }) {
             </Fab>
             <input type="text" style={inputStyles.inputStyle} placeholder="input..." id="msgInput" />
             <Button color="primary" size="small" id="sendBtn" onClick={() => send()}>Send</Button>
+          </div>
+          <div>
+            {videoRoomComponent}
           </div>
         </div>
       </main>

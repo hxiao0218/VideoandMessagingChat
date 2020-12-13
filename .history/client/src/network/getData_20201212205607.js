@@ -232,6 +232,6 @@ export const getVideoRoomToken = async (identity, room) => {
     return null;
   }
   if (!res.data) return null;
-  console.log('[getVideoRoomToken] ', res.data);
+  console.log(res.data);
   return res.data;
 };
