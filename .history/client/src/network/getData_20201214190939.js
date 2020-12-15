@@ -42,7 +42,6 @@ export const getMessages = async (recipientId, contactId) => {
     };
     return retObj;
   });
-  console.log('[read test]', finalObj);
   return finalObj;
 };
 
@@ -93,7 +92,7 @@ export const joinChat = async (user) => {
   }
 };
 
-export const sendMessage = async (sender, receiver, content, contactUID) => {
+export const sendMessage = async (sender, receiver, content) => {
   // const data = `to=${receiver}&from=${sender}&message=${content}`;
   const token = localStorage.getItem('auth-token');
   // console.log('token = ', token);
@@ -101,7 +100,6 @@ export const sendMessage = async (sender, receiver, content, contactUID) => {
     to: receiver,
     from: sender,
     message: content,
-    id: contactUID,
   }, {
     headers: { 'x-auth-token': token },
   });
@@ -248,7 +246,7 @@ export const getMessagesByConversation = async (conversationId, userId, readUpda
     // console.log('finalObj', finalObj);
     return finalObj;
   }));
-  console.log('[read test]', finalObjArr);
+  // console.log('finalObjArr', finalObjArr);
   return finalObjArr;
 };
 

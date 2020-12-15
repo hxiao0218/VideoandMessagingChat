@@ -30,6 +30,10 @@ function MainView({ user }) {
   const [notificationArr, setNotificationArr] = useState([]);
   const texts = useRef([]); // tmp storage of messages
   const { userData } = useContext(UserContext);
+  // console.log(userData);
+  // const updateContacts = () => setNumContacts((contacts) => contacts + 1);
+  // const updateMessages = () => setNumMessages((messages) => messages + 1);
+  // const updateContactList = (arr) => setContactList(arr);
   const setConversationArrWrapper = (newItem) => {
     if (conversationIDArr.includes(newItem)) return;
     setConversationIDArr((arr) => [...arr, newItem]);

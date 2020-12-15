@@ -37,12 +37,9 @@ export const getMessages = async (recipientId, contactId) => {
       sender: msg.sender,
       content: msg.content,
       timestamp: msg.created_at,
-      read: msg.read,
-      delivered: msg.delivered,
     };
     return retObj;
   });
-  console.log('[read test]', finalObj);
   return finalObj;
 };
 
@@ -93,7 +90,7 @@ export const joinChat = async (user) => {
   }
 };
 
-export const sendMessage = async (sender, receiver, content, contactUID) => {
+export const sendMessage = async (sender, receiver, content) => {
   // const data = `to=${receiver}&from=${sender}&message=${content}`;
   const token = localStorage.getItem('auth-token');
   // console.log('token = ', token);
@@ -101,7 +98,6 @@ export const sendMessage = async (sender, receiver, content, contactUID) => {
     to: receiver,
     from: sender,
     message: content,
-    id: contactUID,
   }, {
     headers: { 'x-auth-token': token },
   });
@@ -205,10 +201,10 @@ export const deleteTwilioMessage = async (conversationID, messageSID) => {
   return res.data;
 };
 
-export const getMessagesByConversation = async (conversationId, userId, readUpdate = false) => {
+export const getMessagesByConversation = async (conversationId) => {
   const res = await axios.get('http://localhost:5000/messages/messages', {
     params: {
-      conversationId, userId, readUpdate,
+      conversationId,
     },
   });
   if (res.status !== 200) {
@@ -234,7 +230,6 @@ export const getMessagesByConversation = async (conversationId, userId, readUpda
     const mediaResp = await axios.get(msgMediaURL, {
       auth,
     });
-    const attribObj = JSON.parse(msg.attributes);
     // console.log('mediaResp', mediaResp);
     const finalObj = {
       content_type: msg.media[0].content_type,
@@ -242,13 +237,11 @@ export const getMessagesByConversation = async (conversationId, userId, readUpda
       sender: msg.author,
       timestamp: msg.dateCreated,
       message_type: 'media',
-      read: attribObj.read,
-      delivered: attribObj.delivered,
     };
     // console.log('finalObj', finalObj);
     return finalObj;
   }));
-  console.log('[read test]', finalObjArr);
+  // console.log('finalObjArr', finalObjArr);
   return finalObjArr;
 };
 

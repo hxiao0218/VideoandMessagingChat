@@ -349,7 +349,7 @@ function MessageChat({ user, contactList }) {
     const message = document.getElementById('msgInput').value;
     // console.log(message);
     if (!message || !userId || !contact) return;
-    sendMessage(userId, contact, message, contactUID);
+    sendMessage(userId, contact, message);
     // clear input field
     document.getElementById('msgInput').value = '';
   };

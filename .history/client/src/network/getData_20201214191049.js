@@ -93,7 +93,7 @@ export const joinChat = async (user) => {
   }
 };
 
-export const sendMessage = async (sender, receiver, content, contactUID) => {
+export const sendMessage = async (sender, receiver, content) => {
   // const data = `to=${receiver}&from=${sender}&message=${content}`;
   const token = localStorage.getItem('auth-token');
   // console.log('token = ', token);
@@ -101,7 +101,6 @@ export const sendMessage = async (sender, receiver, content, contactUID) => {
     to: receiver,
     from: sender,
     message: content,
-    id: contactUID,
   }, {
     headers: { 'x-auth-token': token },
   });

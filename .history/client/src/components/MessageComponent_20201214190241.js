@@ -119,11 +119,6 @@ function MessageChat({ user, contactList }) {
     padding: 5,
   };
 
-  const readStyle = {
-    color: 'DarkGray',
-    fontSize: '10px',
-  };
-
   const mediaBoxStyle = {
     overflow: 'scroll',
   };
@@ -154,21 +149,10 @@ function MessageChat({ user, contactList }) {
     console.log('[messageList update]: ', messageList);
     const tmpObj = messageList.map((msg) => {
       if (msg.message_type === 'text') { // text
-        const textComponent = (
-          <span>
-            <span>
-              {msg.content}
-            </span>
-            {/* <br /> */}
-            <b style={readStyle}>
-              {msg.read ? '     Read' : '     Unread'}
-            </b>
-          </span>
-        );
         return new Message({
           id: (msg.sender === userData.user.id) ? 0 : 1,
-          message: textComponent,
-          // senderName: `${msg.timestamp}  ${msg.read ? 'Read' : 'Unread'}`,
+          message: msg.content,
+          senderName: msg.timestamp,
         });
       } if (msg.content_type.match(contentTypeRegex.photo)) { // process image bubble
         console.log(msg);
@@ -178,15 +162,12 @@ function MessageChat({ user, contactList }) {
             href={msg.mediaURL}
           >
             <img src={msg.mediaURL} alt={msg.content_type} style={imgStyle} />
-            <b style={readStyle}>
-              {msg.read ? '     Read' : '     Unread'}
-            </b>
           </a>
         );
         return new Message({
           id: (msg.sender === userData.user.id) ? 0 : 1,
           message: imageComponent,
-          // senderName: `${msg.timestamp}  ${msg.read ? 'Read' : 'Unread'}`,
+          senderName: msg.timestamp,
         });
       } if (msg.content_type.match(contentTypeRegex.video)) { // process video bubble
         const videoComponent = (
@@ -198,15 +179,12 @@ function MessageChat({ user, contactList }) {
               <source src={msg.mediaURL} type={msg.content_type} />
               Your browser does not support the video tag.
             </video>
-            <b style={readStyle}>
-              {msg.read ? '     Read' : '     Unread'}
-            </b>
           </a>
         );
         return new Message({
           id: (msg.sender === userData.user.id) ? 0 : 1,
           message: videoComponent,
-          // senderName: `${msg.timestamp}  ${msg.read ? 'Read' : 'Unread'}`,
+          senderName: msg.timestamp,
         });
       } if (msg.content_type.match(contentTypeRegex.audio)) { // process audio bubble
         const audioComponent = (
@@ -223,15 +201,12 @@ function MessageChat({ user, contactList }) {
               {' '}
               element.
             </audio>
-            <b style={readStyle}>
-              {msg.read ? '     Read' : '     Unread'}
-            </b>
           </a>
         );
         return new Message({
           id: (msg.sender === userData.user.id) ? 0 : 1,
           message: audioComponent,
-          // senderName: `${msg.timestamp}  ${msg.read ? 'Read' : 'Unread'}`,
+          senderName: msg.timestamp,
         });
       }
       return null;
@@ -349,7 +324,7 @@ function MessageChat({ user, contactList }) {
     const message = document.getElementById('msgInput').value;
     // console.log(message);
     if (!message || !userId || !contact) return;
-    sendMessage(userId, contact, message, contactUID);
+    sendMessage(userId, contact, message);
     // clear input field
     document.getElementById('msgInput').value = '';
   };

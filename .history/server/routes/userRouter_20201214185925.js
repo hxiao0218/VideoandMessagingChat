@@ -119,7 +119,13 @@ router.get('/', auth, async (req, res) => {
 
 router.get('/contacts', auth, async (req, res) => {
   const user = req.query.username;
-  // console.log(user);
+  console.log(user);
+  // const contactList = await Contact.find({
+  //   $or: [
+  //     { user1: ObjectId(user) },
+  //     { user2: ObjectId(user) },
+  //   ],
+  // });
   const contactList = await Contact.aggregate([
     {
       $match: {
@@ -149,13 +155,8 @@ router.get('/contacts', auth, async (req, res) => {
         as: 'fromUsers2',
       },
     },
-    {
-      $sort: {
-        updatedAt: -1,
-      },
-    },
   ]);
-  console.log('[contactList]', contactList);
+  console.log(contactList);
   const newList = contactList.map((contactObj) => {
     const userContact = (String(contactObj.user1) === user) ? contactObj.user2 : contactObj.user1;
     const nickname = (String(contactObj.user1) === user)
@@ -202,30 +203,24 @@ router.get('/messages', auth, async (req, res) => {
   ]);
   console.log(messages);
   // update messages' read status
-  try {
-    const readMessages = Promise.all((messages).map(async (msg) => {
-      if (msg.sender === user) {
-        console.log('[sender === user]', user);
-        return null;
-      }
-      const newMessage = await Message.updateOne({ _id: ObjectId(msg._id) }, {
-        read: true,
-        delivered: true,
-      });
-      // console.log('newMessage', newMessage);
-      return newMessage;
-    }));
-    console.log(readMessages);
-  } catch (error) {
-    console.log(error);
-  }
+  const readMessages = Promise.all((messages).map(async (msg) => {
+    if (msg.sender === user) {
+      console.log('[sender === user]', user);
+      return null;
+    }
+    const newMessage = await Message.updateOne({ _id: ObjectId(msg._id) }, {
+      read: true,
+      delivered: true,
+    });
+    console.log('newMessage', newMessage);
+    return newMessage;
+  }));
+  console.log(readMessages);
   res.status(200).send(messages);
 });
 
 router.post('/message', auth, async (req, res) => {
-  const {
-    to, from, message, id,
-  } = req.body;
+  const { to, from, message } = req.body;
   if (!to || !from || !message) {
     return res.status(400).json({ msg: 'Please enter the required fields' });
   }
@@ -240,12 +235,6 @@ router.post('/message', auth, async (req, res) => {
   try {
     const savedMessage = newMessage.save();
     res.json(savedMessage);
-    const newContact = await Contact.updateOne({ _id: ObjectId(id) }, {
-      $inc: {
-        numMessages: 1,
-      },
-    });
-    console.log('newContact', newContact);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

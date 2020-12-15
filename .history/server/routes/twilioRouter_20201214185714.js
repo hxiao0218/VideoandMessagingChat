@@ -185,7 +185,7 @@ router.delete('/message', (req, res) => {
 });
 
 router.get('/messages', (req, res) => {
-  const { conversationId, userId, readUpdate } = req.query;
+  const { conversationId } = req.query;
   const attributesObj = {
     read: true,
     delivered: true,
@@ -194,27 +194,16 @@ router.get('/messages', (req, res) => {
     .messages
     .list()
     .then(async (messages) => {
-      console.log('[twilio messages]', messages);
-      if (!messages) return;
+      console.log('[messages]', messages);
       // update read reciepts
-      if (readUpdate) {
-        try {
-          Promise.all(messages.forEach(async (msg) => {
-            if (msg.author === userId) {
-              console.log('author === userId', userId);
-              return;
-            }
-            twilioClient.conversations.conversations(conversationId)
-              .messages(msg.sid)
-              .update({
-                attributes: JSON.stringify(attributesObj),
-              })
-              .then((resp) => console.log('[readReciepts]', resp));
-          }));
-        } catch (error) {
-          console.log(error);
-        }
-      }
+      Promise.all(messages.forEach(async (msg) => {
+        twilioClient.conversations.conversations(conversationId)
+          .messages(msg.sid)
+          .update({
+            attributes: JSON.stringify(attributesObj),
+          })
+          .then((resp) => console.log('[readReciepts]', resp));
+      }));
       res.status(200).send(messages);
     });
 });

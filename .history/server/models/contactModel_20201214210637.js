@@ -11,8 +11,6 @@ const contactSchema = new mongoose.Schema({
   },
   numMessages: Number,
   conversationSID: String,
-}, {
-  timestamps: { createdAt: 'created_at' },
 });
 
 const Contact = mongoose.model('Contact', contactSchema);

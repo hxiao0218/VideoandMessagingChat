@@ -155,7 +155,7 @@ router.get('/contacts', auth, async (req, res) => {
       },
     },
   ]);
-  console.log('[contactList]', contactList);
+  console.log('contactList', contactList);
   const newList = contactList.map((contactObj) => {
     const userContact = (String(contactObj.user1) === user) ? contactObj.user2 : contactObj.user1;
     const nickname = (String(contactObj.user1) === user)

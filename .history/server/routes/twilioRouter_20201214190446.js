@@ -195,25 +195,20 @@ router.get('/messages', (req, res) => {
     .list()
     .then(async (messages) => {
       console.log('[twilio messages]', messages);
-      if (!messages) return;
       // update read reciepts
       if (readUpdate) {
-        try {
-          Promise.all(messages.forEach(async (msg) => {
-            if (msg.author === userId) {
-              console.log('author === userId', userId);
-              return;
-            }
-            twilioClient.conversations.conversations(conversationId)
-              .messages(msg.sid)
-              .update({
-                attributes: JSON.stringify(attributesObj),
-              })
-              .then((resp) => console.log('[readReciepts]', resp));
-          }));
-        } catch (error) {
-          console.log(error);
-        }
+        Promise.all(messages.forEach(async (msg) => {
+          if (msg.author === userId) {
+            console.log('author === userId', userId);
+            return;
+          }
+          twilioClient.conversations.conversations(conversationId)
+            .messages(msg.sid)
+            .update({
+              attributes: JSON.stringify(attributesObj),
+            })
+            .then((resp) => console.log('[readReciepts]', resp));
+        }));
       }
       res.status(200).send(messages);
     });

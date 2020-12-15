@@ -148,15 +148,11 @@ router.post('/conversation', (req, res) => {
 
 router.post('/message', (req, res) => {
   const { senderID, mediaSID, conversationId } = req.body;
-  const attributesObj = {
-    read: false,
-    delivered: false,
-  };
   console.log('senderID, mediaSID', senderID, mediaSID, conversationId);
   if (!mediaSID) {
     twilioClient.conversations.conversations(conversationId)
       .messages
-      .create({ author: senderID, body: 'video_call', attributes: JSON.stringify(attributesObj) })
+      .create({ author: senderID, body: 'video_call' })
       .then((message) => {
         console.log(message);
         res.status(200).send(message);
@@ -185,36 +181,12 @@ router.delete('/message', (req, res) => {
 });
 
 router.get('/messages', (req, res) => {
-  const { conversationId, userId, readUpdate } = req.query;
-  const attributesObj = {
-    read: true,
-    delivered: true,
-  };
+  const { conversationId } = req.query;
   twilioClient.conversations.conversations(conversationId)
     .messages
     .list()
-    .then(async (messages) => {
-      console.log('[twilio messages]', messages);
-      if (!messages) return;
-      // update read reciepts
-      if (readUpdate) {
-        try {
-          Promise.all(messages.forEach(async (msg) => {
-            if (msg.author === userId) {
-              console.log('author === userId', userId);
-              return;
-            }
-            twilioClient.conversations.conversations(conversationId)
-              .messages(msg.sid)
-              .update({
-                attributes: JSON.stringify(attributesObj),
-              })
-              .then((resp) => console.log('[readReciepts]', resp));
-          }));
-        } catch (error) {
-          console.log(error);
-        }
-      }
+    .then((messages) => {
+      console.log(messages);
       res.status(200).send(messages);
     });
 });
