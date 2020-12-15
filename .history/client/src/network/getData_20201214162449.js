@@ -188,11 +188,7 @@ export const sendTwilioMessage = async (senderID, mediaSID, conversationId) => {
 };
 
 export const deleteTwilioMessage = async (conversationID, messageSID) => {
-  const res = await axios.delete('http://localhost:5000/messages/message', {
-    data: {
-      conversationID, messageSID,
-    },
-  });
+  const res = await axios.delete(`https://conversations.twilio.com/v1/Conversations/${conversationID}/Messages/${messageSID}`);
   console.log(res);
   if (res.status !== 200) {
     console.log('[deleteTwilioMessage error]', res.error);

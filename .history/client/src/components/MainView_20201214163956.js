@@ -96,7 +96,7 @@ function MainView({ user }) {
 
   useInterval(() => {
     handleRefresh();
-  }, 10000);
+  }, 5000);
 
   useEffect(() => {
     console.log('noficationArr', notificationArr);

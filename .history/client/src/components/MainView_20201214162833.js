@@ -64,8 +64,7 @@ function MainView({ user }) {
     let curMessageArr = await Promise.all((conversationIDArr).map(async (cid) => {
       const curResp = await getMessagesByConversation(cid);
       console.log('curResp', curResp);
-      let filteredResp = curResp.filter((msg) => msg.body === 'video_call');
-      filteredResp = filteredResp.filter((msg) => msg.author !== userData.user.id);
+      const filteredResp = curResp.filter((msg) => msg.body === 'video_call');
       console.log('filteredResp', filteredResp);
       return filteredResp;
     }));

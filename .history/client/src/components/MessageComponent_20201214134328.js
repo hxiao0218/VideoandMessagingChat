@@ -219,8 +219,7 @@ function MessageChat({ user, contactList }) {
       console.log('msg component recipient, userids', contact, userId);
       const resp = await getMessages(contact, userId);
       console.log('getMessages Resp', resp);
-      let mediaResp = await getMessagesByConversation(conversationId);
-      mediaResp = mediaResp.filter((x) => x.mediaURL); // filter false values
+      const mediaResp = await getMessagesByConversation(conversationId);
       console.log('mediaResp', mediaResp);
       // prevent repetitive re-rendering
       if ((!resp && !mediaResp) || (resp.length + mediaResp.length === messageList.length)) return;

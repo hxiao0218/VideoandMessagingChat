@@ -220,7 +220,7 @@ function MessageChat({ user, contactList }) {
       const resp = await getMessages(contact, userId);
       console.log('getMessages Resp', resp);
       let mediaResp = await getMessagesByConversation(conversationId);
-      mediaResp = mediaResp.filter((x) => x.mediaURL); // filter false values
+      mediaResp = mediaResp.filter((x) => x); // filter false values
       console.log('mediaResp', mediaResp);
       // prevent repetitive re-rendering
       if ((!resp && !mediaResp) || (resp.length + mediaResp.length === messageList.length)) return;

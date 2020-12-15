@@ -168,18 +168,6 @@ router.post('/message', (req, res) => {
   }
 });
 
-router.delete('/message', (req, res) => {
-  const { conversationID, messageSID } = req.body;
-  console.log('conversationID, messageSID', conversationID, messageSID);
-  twilioClient.conversations.conversations(conversationID)
-    .messages(messageSID)
-    .remove()
-    .then((resp) => {
-      console.log(resp);
-      res.status(200).send(resp);
-    });
-});
-
 router.get('/messages', (req, res) => {
   const { conversationId } = req.query;
   twilioClient.conversations.conversations(conversationId)

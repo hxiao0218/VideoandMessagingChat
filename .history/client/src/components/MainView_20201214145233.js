@@ -9,7 +9,6 @@ import ReactNotification, { store } from 'react-notifications-component';
 import { BrowserRouter as Router } from 'react-router-dom';
 import {
   getContacts, joinChat, sendMessage, getMessagesByConversation,
-  deleteTwilioMessage,
 } from '../network/getData';
 import { setupWSConnection } from '../network/notifications';
 import ContactComponent from './ContactComponent';
@@ -64,8 +63,7 @@ function MainView({ user }) {
     let curMessageArr = await Promise.all((conversationIDArr).map(async (cid) => {
       const curResp = await getMessagesByConversation(cid);
       console.log('curResp', curResp);
-      let filteredResp = curResp.filter((msg) => msg.body === 'video_call');
-      filteredResp = filteredResp.filter((msg) => msg.author !== userData.user.id);
+      const filteredResp = curResp.filter((msg) => msg.body === 'video_call');
       console.log('filteredResp', filteredResp);
       return filteredResp;
     }));
@@ -73,11 +71,6 @@ function MainView({ user }) {
     console.log('curMessageArr', curMessageArr);
     setNotificationArr(curMessageArr);
     // delete cur notification to avoid repetitive alert
-    const deleteResp = await Promise.all((curMessageArr).map(async (curMsg) => {
-      const curResp = await deleteTwilioMessage(curMsg.conversationSID, curMsg.msgSID);
-      return curResp;
-    }));
-    console.log('deleteResp', deleteResp);
   };
 
   // update contacts component upon mounting
@@ -102,13 +95,13 @@ function MainView({ user }) {
     console.log('noficationArr', notificationArr);
     notificationArr.forEach((notification) => {
       const { conversationSID } = notification;
-      // console.log('conversationSID', conversationSID);
-      // console.log('contactList', contactList);
+      console.log('conversationSID', conversationSID);
+      console.log('contactList', contactList);
       const authorList = contactList.filter((elem) => elem.sid === conversationSID);
-      // console.log('authorList', authorList);
+      console.log('authorList', authorList);
       if (!authorList) return;
       const authorName = authorList[0].username;
-      // console.log('authorName', authorName);
+      console.log('authorName', authorName);
       store.addNotification({
         title: 'New Video Call!',
         message: authorName,

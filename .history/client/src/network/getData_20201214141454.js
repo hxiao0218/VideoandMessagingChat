@@ -187,20 +187,6 @@ export const sendTwilioMessage = async (senderID, mediaSID, conversationId) => {
   return res.data;
 };
 
-export const deleteTwilioMessage = async (conversationID, messageSID) => {
-  const res = await axios.delete('http://localhost:5000/messages/message', {
-    data: {
-      conversationID, messageSID,
-    },
-  });
-  console.log(res);
-  if (res.status !== 200) {
-    console.log('[deleteTwilioMessage error]', res.error);
-    return null;
-  }
-  return res.data;
-};
-
 export const getMessagesByConversation = async (conversationId) => {
   const res = await axios.get('http://localhost:5000/messages/messages', {
     params: {
@@ -214,17 +200,8 @@ export const getMessagesByConversation = async (conversationId) => {
   if (!res.data) return [];
   const messages = res.data;
   // console.log('[getMessagesByConversation - messages]', messages);
-  const finalObjArr = await Promise.all((messages).map(async (msg) => {
-    if (!msg.media) {
-      const noMediaMsg = {
-        author: msg.author,
-        body: msg.body,
-        dateCreated: msg.dateCreated,
-        conversationSID: msg.conversationSid,
-        msgSID: msg.sid,
-      };
-      return noMediaMsg;
-    }
+  let finalObjArr = await Promise.all((messages).map(async (msg) => {
+    if (!msg.media) return null;
     const msgMediaURL = baseTwilioMediaURL + msg.media[0].sid;
     // console.log('msgMediaURL', msgMediaURL);
     const mediaResp = await axios.get(msgMediaURL, {
@@ -238,6 +215,7 @@ export const getMessagesByConversation = async (conversationId) => {
       timestamp: msg.dateCreated,
       message_type: 'media',
     };
+    finalObjArr = finalObjArr.filter((item) => item); // filter false values
     // console.log('finalObj', finalObj);
     return finalObj;
   }));
