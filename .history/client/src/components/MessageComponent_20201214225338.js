@@ -518,7 +518,7 @@ function MessageChat({ user, contactList }) {
       outline: 'none',
       padding: '10px',
       margin: '5px',
-      width: '75%',
+      width: '80%',
       'border-radius': '5px',
       '-moz-border-radius': '5px',
       '-webkit-border-radius': '5px',
