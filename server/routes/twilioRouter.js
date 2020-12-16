@@ -1,14 +1,19 @@
-const { Router } = require('express');
-const Twilio = require('twilio');
-const camelCase = require('camelcase');
+/* eslint-disable comma-dangle */
+/* eslint-disable quotes */
+const { Router } = require("express");
+const Twilio = require("twilio");
+const camelCase = require("camelcase");
 // const bodyParser = require('body-parser');
-const { ObjectId } = require('mongoose').Types;
-const Contact = require('../models/contactModel');
+const { ObjectId } = require("mongoose").Types;
+const Contact = require("../models/contactModel");
 
-const tokenGenerator = require('./tokenGenerator');
-const config = require('./config');
+const tokenGenerator = require("./tokenGenerator");
+const config = require("./config");
 
-const twilioClient = Twilio(config.TWILIO_ACCOUNT_SID, config.TWILIO_AUTH_TOKEN);
+const twilioClient = Twilio(
+  config.TWILIO_ACCOUNT_SID,
+  config.TWILIO_AUTH_TOKEN
+);
 // console.log('twilioClient', twilioClient);
 const router = new Router();
 
@@ -24,7 +29,6 @@ function getTwilioClient() {
   const service = client.notify.services(
     config.TWILIO_NOTIFICATION_SERVICE_SID,
   );
-
   return service;
 }
 
@@ -102,16 +106,17 @@ router.post('/messenger_auth', (req, res) => {
 });
 
 // Verification endpoint for Facebook needed to register a webhook.
-router.get('/messenger_auth', (req, res) => {
-  console.log(req.query['hub.challenge']);
-  res.send(req.query['hub.challenge']);
+router.get("/messenger_auth", (req, res) => {
+  console.log(req.query["hub.challenge"]);
+  res.send(req.query["hub.challenge"]);
 });
 
-router.get('/conversation', (req, res) => {
+router.get("/conversation", (req, res) => {
   // const { conversationId } = req.params;
   const { conversationId } = req.query;
-  console.log('convoId', conversationId);
-  twilioClient.conversations.conversations(conversationId)
+  console.log("convoId", conversationId);
+  twilioClient.conversations
+    .conversations(conversationId)
     .fetch()
     .then((conversation) => {
       console.log(conversation);
@@ -119,24 +124,25 @@ router.get('/conversation', (req, res) => {
     });
 });
 
-router.post('/conversation', (req, res) => {
+router.post("/conversation", (req, res) => {
   const { contact, contactCID } = req.body;
-  console.log('new conversation request initiated');
-  console.log('contact = ', contact);
-  console.log('contactCID = ', contactCID);
+  console.log("new conversation request initiated");
+  console.log("contact = ", contact);
+  console.log("contactCID = ", contactCID);
   try {
     twilioClient.conversations.conversations
       .create({
         uniqueName: contact,
       })
       .then((conversation) => {
-        console.log('conversation sid', conversation.sid);
+        console.log("conversation sid", conversation.sid);
         // save conversation sid to contact db
         const cb = async () => {
           const doc = await Contact.updateOne(
-            { _id: ObjectId(contactCID) }, { conversationSID: conversation.sid },
+            { _id: ObjectId(contactCID) },
+            { conversationSID: conversation.sid }
           );
-          console.log('db convo doc', doc);
+          console.log("db convo doc", doc);
         };
         cb();
         res.status(200).send(conversation.sid);
@@ -152,19 +158,23 @@ router.post('/message', (req, res) => {
     read: false,
     delivered: false,
   };
-  console.log('senderID, mediaSID', senderID, mediaSID, conversationId);
+  console.log("senderID, mediaSID", senderID, mediaSID, conversationId);
   if (!mediaSID) {
-    twilioClient.conversations.conversations(conversationId)
-      .messages
-      .create({ author: senderID, body: 'video_call', attributes: JSON.stringify(attributesObj) })
+    twilioClient.conversations
+      .conversations(conversationId)
+      .messages.create({
+        author: senderID,
+        body: "video_call",
+        attributes: JSON.stringify(attributesObj),
+      })
       .then((message) => {
         console.log(message);
         res.status(200).send(message);
       });
   } else {
-    twilioClient.conversations.conversations(conversationId)
-      .messages
-      .create({ author: senderID, mediaSid: mediaSID })
+    twilioClient.conversations
+      .conversations(conversationId)
+      .messages.create({ author: senderID, mediaSid: mediaSID })
       .then((message) => {
         console.log(message);
         res.status(200).send(message);
@@ -172,10 +182,11 @@ router.post('/message', (req, res) => {
   }
 });
 
-router.delete('/message', (req, res) => {
+router.delete("/message", (req, res) => {
   const { conversationID, messageSID } = req.body;
-  console.log('conversationID, messageSID', conversationID, messageSID);
-  twilioClient.conversations.conversations(conversationID)
+  console.log("conversationID, messageSID", conversationID, messageSID);
+  twilioClient.conversations
+    .conversations(conversationID)
     .messages(messageSID)
     .remove()
     .then((resp) => {
@@ -190,27 +201,30 @@ router.get('/messages', (req, res) => {
     read: true,
     delivered: true,
   };
-  twilioClient.conversations.conversations(conversationId)
-    .messages
-    .list()
+  twilioClient.conversations
+    .conversations(conversationId)
+    .messages.list()
     .then(async (messages) => {
-      console.log('[twilio messages]', messages);
+      console.log("[twilio messages]", messages);
       if (!messages) return;
       // update read reciepts
       if (readUpdate) {
         try {
-          Promise.all(messages.forEach(async (msg) => {
-            if (msg.author === userId) {
-              console.log('author === userId', userId);
-              return;
-            }
-            twilioClient.conversations.conversations(conversationId)
-              .messages(msg.sid)
-              .update({
-                attributes: JSON.stringify(attributesObj),
-              })
-              .then((resp) => console.log('[readReciepts]', resp));
-          }));
+          Promise.all(
+            messages.forEach(async (msg) => {
+              if (msg.author === userId) {
+                console.log("author === userId", userId);
+                return;
+              }
+              twilioClient.conversations
+                .conversations(conversationId)
+                .messages(msg.sid)
+                .update({
+                  attributes: JSON.stringify(attributesObj),
+                })
+                .then((resp) => console.log("[readReciepts]", resp));
+            })
+          );
         } catch (error) {
           console.log(error);
         }
@@ -231,24 +245,36 @@ router.get('/messages', (req, res) => {
 //     });
 // });
 
-router.get('/onemessage', (req, res) => {
+router.get("/onemessage", (req, res) => {
   // const { conversationId } = req.params;
   const { conversationId, messageId } = req.query;
-  console.log('delete media message inside back end!!!!!!', conversationId, messageId);
-  twilioClient.conversations.conversations(conversationId).messages(messageId).remove()
+  console.log(
+    "delete media message inside back end!!!!!!",
+    conversationId,
+    messageId
+  );
+  twilioClient.conversations
+    .conversations(conversationId)
+    .messages(messageId)
+    .remove()
     .then((conversation) => {
-      console.log('media message deleted backend ', conversation);
+      console.log("media message deleted backend ", conversation);
       res.status(200).send(conversation);
     });
 });
 
-router.get('/deleteconversation', (req, res) => {
+router.get("/deleteconversation", (req, res) => {
   // const { conversationId } = req.params;
   const { conversationId } = req.query;
-  console.log('delete media conversation inside back end!!!!!!', conversationId);
-  twilioClient.conversations.conversations(conversationId).remove()
+  console.log(
+    "delete media conversation inside back end!!!!!!",
+    conversationId
+  );
+  twilioClient.conversations
+    .conversations(conversationId)
+    .remove()
     .then((conversation) => {
-      console.log('media conversation deleted backend ', conversation);
+      console.log("media conversation deleted backend ", conversation);
       res.status(200).send(conversation);
     });
 });

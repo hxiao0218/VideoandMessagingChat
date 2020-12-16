@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable jsx-a11y/media-has-caption */
 /* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable jsx-a11y/anchor-is-valid */
@@ -38,7 +39,6 @@ import {
 } from '../network/getData';
 import VideoRoom from './VideoRoom';
 import UserContext from '../context/UserContext';
-
 import useInterval from './utils';
 import './MessageComponent.css';
 import DeleteMessageButtonComponent from './DeleteMessageButtonComponent';
@@ -124,6 +124,7 @@ function MessageChat({ user, contactList }) {
     padding: 5,
   };
 
+
   const readStyle = {
     color: 'DarkGray',
     fontSize: '10px',
@@ -138,7 +139,7 @@ function MessageChat({ user, contactList }) {
     video: /^video/,
     audio: /^audio/,
   };
-
+  
   const handleOpen = () => {
     setOpen(true);
   };
@@ -424,6 +425,34 @@ function MessageChat({ user, contactList }) {
       || curName.match(validObj.video) || curName.match(validObj.audio);
     // console.log('size', curSize, validateName);
     return (curSize < 20 && validateName);
+  };
+
+  const openMenu = () => {
+    document.getElementsByClassName('extra-options')[0].style.display = 'block';
+  };
+
+  const uploadMedia = async (e) => {
+    // access file
+    const curFile = e.target.files[0];
+    // console.log(curFile);
+    // setFile(curFile);
+    // setFileType('photo');
+    if (!validateFile(curFile)) {
+      alert('please enter a valid photo file less than 20 mb!');
+    } else {
+      try {
+        const fileReader = new FileReader();
+        fileReader.onloadend = async (fe) => {
+          const arrayBuffer = fe.target.result;
+          const imageType = curFile.type;
+          const mediaSID = await twilioMediaUpload(arrayBuffer, imageType);
+          sendTwilioMessage(userId, mediaSID, conversationId);
+        };
+        fileReader.readAsArrayBuffer(curFile);
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
   const openMenu = () => {

@@ -1,17 +1,19 @@
+/* eslint-disable quotes */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/jsx-filename-extension */
 /* eslint-disable no-unused-expressions */
-import React, { useState, useContext } from 'react';
-import { useHistory } from 'react-router-dom';
-import Axios from 'axios';
-import UserContext from '../context/UserContext';
-import ErrorNotice from '../Errormsg/ErrorNotice';
+import React, { useState, useContext } from "react";
+import { Link, useHistory } from "react-router-dom";
+import Axios from "axios";
+import UserContext from "../context/UserContext";
+import ErrorNotice from "../Errormsg/ErrorNotice";
 
 export default function Register() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
   const { setUserData } = useContext(UserContext);
   const history = useHistory();
 
@@ -21,12 +23,13 @@ export default function Register() {
 
       const newUser = {
         username,
+        email,
         password,
         confirmPassword,
       };
       // const registerRes =
-      await Axios.post('http://localhost:5000/users/register', newUser);
-      const loginRes = await Axios.post('http://localhost:5000/users/login', {
+      await Axios.post("http://localhost:5000/users/register", newUser);
+      const loginRes = await Axios.post("http://localhost:5000/users/login", {
         username,
         password,
       });
@@ -34,8 +37,8 @@ export default function Register() {
         token: loginRes.data.token,
         user: loginRes.data.user,
       });
-      localStorage.setItem('auth-token', loginRes.data.token);
-      history.push('/login');
+      // localStorage.setItem("auth-token", loginRes.data.token);
+      history.push("/login");
     } catch (err) {
       err.response.data.msg && setError(err.response.data.msg);
     }
@@ -54,6 +57,12 @@ export default function Register() {
           id="register-username"
           onChange={(e) => setUsername(e.target.value)}
         />
+        <label htmlFor="register-email">Email</label>
+        <input
+          type="email"
+          id="register-email"
+          onChange={(e) => setEmail(e.target.value)}
+        />
         <label htmlFor="register-password">Password</label>
         <input
           type="password"
@@ -68,6 +77,9 @@ export default function Register() {
         />
         <input type="submit" value="Register" />
       </form>
+      <h6>
+        <Link to="/login">Already have an account ?</Link>
+      </h6>
     </div>
   );
 }

@@ -1,12 +1,13 @@
+/* eslint-disable quotes */
 /* eslint-disable no-console */
-const express = require('express');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const multer = require('multer');
+const express = require("express");
+const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
+const multer = require("multer");
 
 const upload = multer();
-const cors = require('cors');
-require('dotenv').config();
+const cors = require("cors");
+require("dotenv").config();
 
 // set up express
 const app = express();
@@ -31,13 +32,14 @@ mongoose
     useCreateIndex: true,
   })
   .then(() => {
-    console.log('MONGO CONNECTION OPEN');
+    console.log("MONGO CONNECTION OPEN");
   })
   .catch((err) => {
-    console.log('MONGO CONNECTION ERROR');
+    console.log("MONGO CONNECTION ERROR");
     console.log(err);
   });
 
 // set up routes
-app.use('/users', require('./routes/userRouter'));
-app.use('/messages', require('./routes/twilioRouter'));
+app.use("/users", require("./routes/userRouter"));
+app.use("/posts", require("./routes/postRouter"));
+app.use("/messages", require("./routes/twilioRouter"));

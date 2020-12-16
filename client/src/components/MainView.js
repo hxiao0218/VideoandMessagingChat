@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable consistent-return */
 /* eslint-disable react/prop-types */
 /* eslint-disable react/jsx-filename-extension */
@@ -35,6 +36,7 @@ function MainView({ user }) {
   const [notificationArr, setNotificationArr] = useState([]);
   const texts = useRef([]); // tmp storage of messages
   const { userData } = useContext(UserContext);
+
   const setConversationArrWrapper = (newItem) => {
     if (conversationIDArr.includes(newItem)) return;
     setConversationIDArr((arr) => [...arr, newItem]);

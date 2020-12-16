@@ -1,83 +1,226 @@
+/* eslint-disable no-else-return */
+/* eslint-disable object-curly-newline */
+/* eslint-disable no-unused-vars */
+/* eslint-disable operator-linebreak */
+/* eslint-disable no-shadow */
+/* eslint-disable comma-dangle */
+/* eslint-disable quotes */
 /* eslint-disable max-len */
 /* eslint-disable consistent-return */
 /* eslint-disable no-underscore-dangle */
-const router = require('express').Router();
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { ObjectId } = require('mongoose').Types;
-const { ObjectID } = require('mongodb');
-const User = require('../models/userModel');
-const Message = require('../models/messageModel');
-const Contact = require('../models/contactModel');
-const auth = require('../middleware/auth');
+const router = require("express").Router();
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { ObjectId } = require("mongoose").Types;
+const { ObjectID } = require("mongodb");
+const mailgun = require("mailgun-js");
+const redis = require("redis");
+const { RateLimiterRedis } = require("rate-limiter-flexible");
+const User = require("../models/userModel");
+const Message = require("../models/messageModel");
+const Contact = require("../models/contactModel");
+const auth = require("../middleware/auth");
 
-router.post('/register', async (req, res) => {
+const DOMAIN = "sandbox69ea79e0299949be9cbbafac8db9a415.mailgun.org";
+const mg = mailgun({ apiKey: process.env.MAILGUN_APIKEY, domain: DOMAIN });
+const redisClient = redis.createClient({
+  enable_offline_queue: false,
+});
+
+const maxConsecutiveFailsByUsername = 3;
+
+const limiterConsecutiveFailsByUsername = new RateLimiterRedis({
+  redis: redisClient,
+  keyPrefix: "login_fail_consecutive_username",
+  points: maxConsecutiveFailsByUsername,
+  duration: 60 * 60 * 3, // Store number for three hours since first fail
+  blockDuration: 60 * 15, // Block for 30 minutes
+});
+
+router.post("/register", async (req, res) => {
   try {
-    const { username, password, confirmPassword } = req.body;
+    const { username, email, password, confirmPassword } = req.body;
 
     // validate
     // check if the required fields contain inputs
-    if (!username || !password || !confirmPassword) {
-      return res.status(400).json({ msg: 'Please enter the required fields' });
+    if (!email || !username || !password || !confirmPassword) {
+      return res.status(400).json({ msg: "Please enter the required fields" });
     }
     // check the password is of the valid length
     if (password.length < 5) {
       return res
         .status(400)
-        .json({ msg: 'Password must contain at least 5 characters' });
+        .json({ msg: "Password must contain at least 5 characters" });
     }
     // check if the user has entered the same password twice
     if (password !== confirmPassword) {
-      return res.status(400).json({ msg: 'Enter the same password' });
+      return res.status(400).json({ msg: "Enter the same password" });
     }
     // check if the username has already been registered
     const existingUser = await User.findOne({ username });
     if (existingUser) {
-      return res.status(400).json({ msg: 'User already exists' });
+      return res.status(400).json({ msg: "User already exists" });
     }
+    // check if the email has already been used
+    const usedEmail = await User.findOne({ email });
+    if (usedEmail) {
+      return res.status(400).json({ msg: "This email has already been used" });
+    }
+
+    const data = {
+      from: "noreply@ChatApp.com",
+      to: email,
+      subject: "Welcome!",
+      text: "Welcome to the chat app!",
+    };
+    mg.messages().send(data, (error, body) => {
+      if (error) {
+        return res.json({ error: error.message });
+      }
+      console.log(body);
+      // return res.json({ message: "Email has been sent to your email." });
+    });
 
     const salt = await bcrypt.genSalt(10);
     const hashedPw = await bcrypt.hash(password, salt);
     const newUser = new User({
       username,
+      email,
       password: hashedPw,
     });
     const savedUser = await newUser.save();
+    const self = await User.findById(savedUser._id);
+    const add = await User.findByIdAndUpdate(
+      self._id,
+      {
+        $push: { contacts: self._id },
+      },
+      { new: true }
+    );
+    console.log(add);
     res.json(savedUser);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+// router.post("/register", async (req, res) => {
+//   try {
+//     const { username, password, confirmPassword } = req.body;
 
-router.post('/login', async (req, res) => {
+//     // validate
+//     // check if the required fields contain inputs
+//     if (!username || !password || !confirmPassword) {
+//       return res.status(400).json({ msg: "Please enter the required fields" });
+//     }
+//     // check the password is of the valid length
+//     if (password.length < 5) {
+//       return res
+//         .status(400)
+//         .json({ msg: "Password must contain at least 5 characters" });
+//     }
+//     // check if the user has entered the same password twice
+//     if (password !== confirmPassword) {
+//       return res.status(400).json({ msg: "Enter the same password" });
+//     }
+//     // check if the username has already been registered
+//     const existingUser = await User.findOne({ username });
+//     if (existingUser) {
+//       return res.status(400).json({ msg: "User already exists" });
+//     }
+
+//     const salt = await bcrypt.genSalt(10);
+//     const hashedPw = await bcrypt.hash(password, salt);
+//     const newUser = new User({
+//       username,
+//       password: hashedPw,
+//     });
+// const savedUser = await newUser.save();
+// const self = await User.findById(savedUser._id);
+// console.log(self);
+// const add = await User.findByIdAndUpdate(
+//   self._id,
+//   {
+//     $push: { contacts: self._id },
+//   },
+//   { new: true }
+// )
+//   .select("-password")
+//   .then((result) => {
+//     res.json(result);
+//   })
+//   .catch((err) => res.status(422).json({ error: err }));
+// res.json(savedUser);
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
+
+router.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
+    const rlResUsername = await limiterConsecutiveFailsByUsername.get(username);
     // validate
     if (!username || !password) {
       return res
         .status(400)
-        .json({ msg: 'Please enter username and password ' });
+        .json({ msg: "Please enter username and password " });
     }
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(400).json({ msg: 'User does not exist' });
+    if (
+      rlResUsername !== null &&
+      rlResUsername.consumedPoints >= maxConsecutiveFailsByUsername
+    ) {
+      const retrySecs = Math.round(rlResUsername.msBeforeNext / 60000) || 1;
+      res.set("Retry-After", String(retrySecs));
+      return res.status(429).json({
+        msg: `Too Many Unsuccessful Attempts. Please Retry after ${retrySecs} minutes`,
+      });
+    } else {
+      const user = await User.findOne({ username });
+      if (!user) {
+        return res.status(400).json({ msg: "User does not exist" });
+      }
+      const match = await bcrypt.compare(password, user.password);
+      if (!match) {
+        try {
+          await limiterConsecutiveFailsByUsername.consume(username);
+          const {
+            remainingPoints,
+          } = await limiterConsecutiveFailsByUsername.get(username);
+          return res.status(400).json({
+            msg: `Incorrect username or password. ${remainingPoints} Attempts left`,
+          });
+        } catch (rlRejected) {
+          if (rlRejected instanceof Error) {
+            throw rlRejected;
+          } else {
+            res.set(
+              "Retry-After",
+              String(Math.round(rlRejected.msBeforeNext / 60000)) || 1
+            );
+            return res.status(429).json({
+              // eslint-disable-next-line no-undef
+              msg: `Too Many Unsuccessful Attempts. Please Retry after ${retrySecs} minutes`,
+            });
+          }
+        }
+      }
+      if (user) {
+        if (rlResUsername !== null && rlResUsername.consumedPoints > 0) {
+          // Reset on successful authorisation
+          await limiterConsecutiveFailsByUsername.delete(username);
+        }
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+        res.json({
+          token,
+          user: {
+            id: user._id,
+            username: user.username,
+            contacts: user.contacts,
+          },
+        });
+      }
     }
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
-      return res.status(400).json({ msg: 'Incorrect username or password' });
-    }
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-    // console.log(token);
-    res.json({
-      token,
-      user: {
-        id: user._id,
-        username: user.username,
-      },
-    });
   } catch (err) {
-    // console.log(err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -92,9 +235,9 @@ router.delete('/delete', auth, async (req, res) => {
   }
 });
 
-router.post('/tokenIsValid', async (req, res) => {
+router.post("/tokenIsValid", async (req, res) => {
   try {
-    const token = req.header('x-auth-token');
+    const token = req.header("x-auth-token");
     if (!token) return res.json(false);
     const verified = jwt.verify(token, process.env.JWT_SECRET);
     if (!verified) {
@@ -111,13 +254,14 @@ router.post('/tokenIsValid', async (req, res) => {
   }
 });
 
-router.get('/', auth, async (req, res) => {
+router.get("/", auth, async (req, res) => {
   const user = await User.findById(req.user);
   res.json({
     username: user.username,
     id: user._id,
   });
 });
+
 
 router.get('/contacts', auth, async (req, res) => {
   const user = req.query.username;
@@ -176,7 +320,7 @@ router.get('/contacts', auth, async (req, res) => {
   res.status(200).send(newList);
 });
 
-router.get('/messages', auth, async (req, res) => {
+router.get("/messages", auth, async (req, res) => {
   const user = req.query.username;
   const contact = req.query.contactname;
   // console.log('user, contact', user, contact);
@@ -262,18 +406,6 @@ router.delete('/messages', auth, async (req, res) => {
   res.status(200).send(messages);
 });
 
-// delete contact
-router.delete('/unfriend', auth, async (req, res) => {
-  const user = req.query.username;
-  const contact = req.query.contactname;
-  // console.log('user, contact', user, contact);
-  const unfriend = await Contact.remove(
-    { $or: [{ user1: ObjectId(user), user2: ObjectId(contact) }, { user1: ObjectId(contact), user2: ObjectId(user) }] },
-  );
-  console.log(unfriend);
-  res.status(200).send(unfriend);
-});
-
 // delete whole conversation
 router.delete('/conversation', auth, async (req, res) => {
   const user = req.query.username;
@@ -287,15 +419,31 @@ router.delete('/conversation', auth, async (req, res) => {
 });
 
 // delete one message
-router.delete('/onemessage', auth, async (req, res) => {
+router.delete("/onemessage", auth, async (req, res) => {
   const user = req.query.username;
   const contact = req.query.contactname;
   const messagecontent1 = req.query.messagecontent;
-  console.log('user, contact, messagecontent in delete one message->>>>>', user, contact, messagecontent1);
-  const messages = await Message.remove(
-    { $or: [{ sender: ObjectId(user), receiver: ObjectId(contact), content: messagecontent1 }, { sender: ObjectId(contact), receiver: ObjectId(user), content: messagecontent1 }] },
+  console.log(
+    "user, contact, messagecontent in delete one message->>>>>",
+    user,
+    contact,
+    messagecontent1
   );
-  console.log('message removed backend----->', messages);
+  const messages = await Message.remove({
+    $or: [
+      {
+        sender: ObjectId(user),
+        receiver: ObjectId(contact),
+        content: messagecontent1,
+      },
+      {
+        sender: ObjectId(contact),
+        receiver: ObjectId(user),
+        content: messagecontent1,
+      },
+    ],
+  });
+  console.log("message removed backend----->", messages);
   res.status(200).send(messages);
 });
 
@@ -309,22 +457,84 @@ router.get('/addfriend', auth, async (req, res) => {
     user2: ObjectId(contact),
     conversationSID: '',
   });
-  console.log('back end add friend api');
+  await User.findByIdAndUpdate(
+    ObjectID(user),
+    {
+      $push: { contacts: ObjectID(contact) },
+    },
+    { new: true },
+    (err, res) => {
+      if (err) {
+        return res.status(422).json({ error: err });
+      }
+    }
+  );
+  await User.findByIdAndUpdate(
+    ObjectID(contact),
+    {
+      $push: { contacts: ObjectID(user) },
+    },
+    { new: true },
+    (err, res) => {
+      if (err) {
+        return res.status(422).json({ error: err });
+      }
+    }
+  );
+  console.log("back end add friend api");
   try {
     const savedContact = newContact.save();
-    console.log('back end add contact success!');
+    console.log("back end add contact success!");
     res.json(savedContact);
   } catch (error) {
-    console.log('back end add contact failed');
+    console.log("back end add contact failed");
     res.status(500).json({ error: error.message });
   }
 });
 
-router.get('/getAllUsers', auth, async (req, res) => {
-  console.log('getallusers backend inside');
+router.delete("/unfriend", auth, async (req, res) => {
+  const user = req.query.username;
+  const contact = req.query.contactname;
+  // console.log('user, contact', user, contact);
+  await User.findByIdAndUpdate(
+    ObjectID(user),
+    {
+      $pull: { contacts: ObjectID(contact) },
+    },
+    { new: true },
+    (err, res) => {
+      if (err) {
+        return res.status(422).json({ error: err });
+      }
+    }
+  );
+  await User.findByIdAndUpdate(
+    ObjectID(contact),
+    {
+      $pull: { contacts: ObjectID(user) },
+    },
+    { new: true },
+    (err, res) => {
+      if (err) {
+        return res.status(422).json({ error: err });
+      }
+    }
+  );
+  const unfriend = await Contact.remove({
+    $or: [
+      { user1: ObjectId(user), user2: ObjectId(contact) },
+      { user1: ObjectId(contact), user2: ObjectId(user) },
+    ],
+  });
+  console.log(unfriend);
+  res.status(200).send(unfriend);
+});
+
+router.get("/getAllUsers", auth, async (req, res) => {
+  console.log("getallusers backend inside");
   const user = req.query.username;
   const contactList = await User.find({ _id: { $ne: ObjectID(user) } });
-  console.log('all users list is:', contactList);
+  console.log("all users list is:", contactList);
   const newList = contactList.map((contactObj) => {
     const userContact = String(contactObj._id);
     const nickname = String(contactObj.username);
@@ -396,4 +606,88 @@ router.get('/setconversationidnull', async (req, res) => {
   console.log('reset conversation id to null in back end ', makeitnull);
   res.status(200).send(makeitnull);
 });
+
+router.put("/reset", async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ error: "User with this email does not exist." });
+    }
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_RESETKEY, {
+      expiresIn: "20m",
+    });
+    const data = {
+      from: "noreply@ChatApp.com",
+      to: email,
+      subject: "Reset Password",
+      html: `<h2>Please click on the given link to reset your password. The link will expire in 20 minutes.</h2>
+        <p>${process.env.CLIENT_URL}/reset/${token}</p>
+        `,
+    };
+    await user.updateOne({ resetLink: token }, (err, success) => {
+      if (err) {
+        return res.status(400).json({ error: "Reset Password Link Error" });
+      } else {
+        mg.messages().send(data, (error, body) => {
+          if (error) {
+            return res.json({ error: err.message });
+          }
+          return res.json({ message: "An email has been sent to your email." });
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post("/new-password", async (req, res) => {
+  try {
+    const newPassword = req.body.password;
+    const newConfirmedPassword = req.body.confirmPassword;
+    const sentToken = req.body.token;
+
+    if (
+      !sentToken ||
+      !newPassword ||
+      !newConfirmedPassword ||
+      newPassword !== newConfirmedPassword
+    ) {
+      return res
+        .status(400)
+        .json({ msg: "Please enter the same password twice" });
+    }
+    // check the password is of the valid length
+    if (newPassword.length < 5) {
+      return res
+        .status(400)
+        .json({ msg: "Password must contain at least 5 characters" });
+    }
+    const user = await User.findOne({ resetLink: sentToken });
+    if (!user) {
+      return res
+        .status(401)
+        .json({ error: "Incorrect token or session has expired." });
+    }
+    const match = await bcrypt.compare(newPassword, user.password);
+    if (match) {
+      return res
+        .status(400)
+        .json({ msg: "New password cannot be the same as the old password!" });
+    }
+    bcrypt.hash(newPassword, 10).then((hashedpassword) => {
+      user.password = hashedpassword;
+      user.resetLink = "";
+      user.save().then((saveduser) => {
+        res.json({ message: "You have successfully reset your password!" });
+      });
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

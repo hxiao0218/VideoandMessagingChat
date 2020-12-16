@@ -1,16 +1,19 @@
+/* eslint-disable comma-dangle */
+/* eslint-disable quotes */
+/* eslint-disable react/no-unescaped-entities */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/jsx-filename-extension */
-import React, { useState, useContext } from 'react';
-import { useHistory } from 'react-router-dom';
-import Axios from 'axios';
-import UserContext from '../context/UserContext';
-import ErrorNotice from '../Errormsg/ErrorNotice';
-import { retrieveToken } from '../network/getData';
+import React, { useState, useContext } from "react";
+import { Link, useHistory } from "react-router-dom";
+import Axios from "axios";
+import UserContext from "../context/UserContext";
+import ErrorNotice from "../Errormsg/ErrorNotice";
+import { retrieveToken } from "../network/getData";
 
 const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const { setUserData } = useContext(UserContext);
   const history = useHistory();
@@ -24,8 +27,8 @@ const Login = () => {
       };
       // console.log(loginUser);
       const loginRes = await Axios.post(
-        'http://localhost:5000/users/login',
-        loginUser,
+        "http://localhost:5000/users/login",
+        loginUser
       );
       console.log(loginRes);
       const twilioRes = await retrieveToken(loginRes.data.user.id);
@@ -36,9 +39,9 @@ const Login = () => {
         twilioToken: twilioRes.token,
       });
       // if (!loggedIn) setLoggedIn(true);
-      localStorage.setItem('auth-token', loginRes.data.token);
-      localStorage.setItem('twilio-token', twilioRes.token);
-      history.push('/main');
+      localStorage.setItem("auth-token", loginRes.data.token);
+      localStorage.setItem("twilio-token", twilioRes.token);
+      history.push("/main");
     } catch (err) {
       // eslint-disable-next-line no-unused-expressions
       err.response.data.msg && setError(err.response.data.msg);
@@ -67,6 +70,12 @@ const Login = () => {
 
         <input type="submit" value="Log in" />
       </form>
+      <h5>
+        <Link to="/Register">Don't have an account ?</Link>
+      </h5>
+      <h6>
+        <Link to="/reset">Forgot password ?</Link>
+      </h6>
     </div>
   );
 };

@@ -11,6 +11,16 @@
   flex-direction: column;
 }
 
+/* .mediabox {
+  height: 100%;
+  width: 80px;
+}
+
+.mediabox img {
+  max-width: 100%;
+  max-height: 100%;
+} */
+
 #messageBar {
   /* flex: 1; */
   position: relative;

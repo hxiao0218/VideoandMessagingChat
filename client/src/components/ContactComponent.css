@@ -24,14 +24,6 @@ SwipeableDrawer {
   margin: 20px;
 }
 
-.headerWrapper {
-  margin: 20px;
-}
-
-/* .drawerPaper {
-  width: 250px;
-} */
-
 #contactList {
   font-size: 0.875rem;
   font-family: "Roboto", "Helvetica", "Arial", sans-serif;

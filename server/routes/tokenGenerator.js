@@ -1,8 +1,10 @@
+/* eslint-disable comma-dangle */
+/* eslint-disable quotes */
 /* eslint-disable consistent-return */
-const { AccessToken } = require('twilio').jwt;
+const { AccessToken } = require("twilio").jwt;
 
 const { VideoGrant } = AccessToken;
-const config = require('./config');
+const config = require("./config");
 
 // general tokens
 const twilioAccountSid = config.TWILIO_ACCOUNT_SID;
