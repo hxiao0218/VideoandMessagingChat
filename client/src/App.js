@@ -20,7 +20,9 @@ export default function App() {
   const [userData, setUserData] = useState({
     token: undefined,
     user: undefined,
+    twilioToken: undefined,
   });
+  const [conversations, setConversations] = useState([]);
   // const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -57,7 +59,7 @@ export default function App() {
     <>
       <BrowserRouter>
         <UserContext.Provider value={{
-          userData, setUserData,
+          userData, setUserData, conversations, setConversations,
         }}
         >
           {/* <Header /> */}
