@@ -7,9 +7,9 @@ import { useHistory, useParams } from "react-router-dom";
 import Axios from "axios";
 import ErrorNotice from "../Errormsg/ErrorNotice";
 
-const herokuBaseURL = 'https://server2-heroku-new.herokuapp.com/';
+const herokuBaseURL = "https://server2-heroku-new.herokuapp.com/";
 
-export default function Register() {
+export default function NewPassword() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const { token } = useParams();
