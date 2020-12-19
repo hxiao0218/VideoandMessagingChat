@@ -7,8 +7,6 @@ import { useHistory, useParams } from "react-router-dom";
 import Axios from "axios";
 import ErrorNotice from "../Errormsg/ErrorNotice";
 
-const herokuBaseURL = 'https://server2-heroku-new.herokuapp.com/';
-
 export default function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -27,7 +25,16 @@ export default function Register() {
         token,
       };
       // const registerRes =
-      await Axios.post(`${herokuBaseURL}users/new-password`, newInfo);
+      await Axios.post("http://localhost:5000/users/new-password", newInfo);
+      // //   const loginRes = await Axios.post("http://localhost:5000/users/login", {
+      // //     username,
+      // //     password,
+      // //   });
+      // //   setUserData({
+      // //     token: loginRes.data.token,
+      // //     user: loginRes.data.user,
+      // //   });
+      //   localStorage.setItem("auth-token", loginRes.data.token);
       history.push("/login");
     } catch (err) {
       err.response.data.msg && setError(err.response.data.msg);

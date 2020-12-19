@@ -11,8 +11,6 @@ import Axios from "axios";
 import { useHistory } from "react-router-dom";
 import ErrorNotice from "../Errormsg/ErrorNotice";
 
-const herokuBaseURL = 'https://server2-heroku-new.herokuapp.com/';
-
 export default function CreatePost() {
   const history = useHistory();
   const [error, setError] = useState("");
@@ -35,7 +33,7 @@ export default function CreatePost() {
             mediaType,
           };
           const result = await Axios.post(
-            `${herokuBaseURL}posts/createPost`,
+            "http://localhost:5000/posts/createPost",
             newPost,
             {
               headers: { "x-auth-token": localStorage.getItem("auth-token") },
@@ -91,6 +89,58 @@ export default function CreatePost() {
           console.log(err);
         });
     }
+    // // data.append("file", media);
+
+    // fetch("https://api.cloudinary.com/v1_1/chatapp557/image&video/upload", {
+    //   method: "post",
+    //   body: data,
+    // })
+    //   .then((res) => res.json())
+    //   .then((data) => {
+    //     setURL(data.url);
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
+  };
+
+  // const postDetails = async () => {
+  //   try {
+  //     const data = new FormData();
+  //     data.append("file", media);
+  //     data.append("upload_preset", "ChatApp");
+  //     data.append("cloud_name", "chatapp557");
+  //     const upload = await fetch(
+  //       "https://api.cloudinary.com/v1_1/chatapp557/auto/upload",
+  //       {
+  //         method: "post",
+  //         body: data,
+  //       }
+  //     )
+  //       .then((res) => res.json())
+  //       .then((data) => {
+  //         console.log(data.url);
+  //         setURL("123");
+  //       })
+  //       .catch((error) => console.log(error));
+
+  //     const newPost = {
+  //       title,
+  //       body,
+  //       url,
+  //     };
+
+  //     const result = await Axios.post(
+  //       "http://localhost:5000/posts/createPost",
+  //       newPost,
+  //       {
+  //         headers: { "x-auth-token": localStorage.getItem("auth-token") },
+  //       }
+  //     );
+  //     history.push("/posts");
+  //   } catch (err) {
+  //     err.response.data.msg && setError(err.response.data.msg);
+  //   }
 
   return (
     <div

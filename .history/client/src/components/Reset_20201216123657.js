@@ -7,8 +7,6 @@ import { useHistory } from "react-router-dom";
 import Axios from "axios";
 import ErrorNotice from "../Errormsg/ErrorNotice";
 
-const herokuBaseURL = 'https://server2-heroku-new.herokuapp.com/';
-
 export default function Reset() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
@@ -22,7 +20,7 @@ export default function Reset() {
       const userEmail = {
         email,
       };
-      await Axios.put(`${herokuBaseURL}users/reset`, userEmail);
+      await Axios.put("http://localhost:5000/users/reset", userEmail);
       history.push("/login");
     } catch (err) {
       err.response.data.msg && setError(err.response.data.msg);

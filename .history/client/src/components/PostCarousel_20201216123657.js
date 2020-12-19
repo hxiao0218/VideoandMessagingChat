@@ -15,16 +15,24 @@ import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a lo
 // import "bootstrap/dist/css/bootstrap.min.css";
 // import Carousel from "react-bootstrap/Carousel";
 
-const herokuBaseURL = 'https://server2-heroku-new.herokuapp.com/';
-
 export default function PostCarousel() {
   const [data, setData] = useState([]);
   // eslint-disable-next-line no-unused-vars
   const { userData } = useContext(UserContext);
+  // console.log(userData);
+
+  // const videoRef = useRef();
+  // const timeRef = useRef();
+
+  // function pauseVideo() {
+  //   console.log(timeRef.current);
+  // }
+  // timeRef.current = videoRef.current.currentTime;
+  // console.log(timeRef.current);
 
   useEffect(() => {
     const getPosts = async () => {
-      const result = await Axios.get(`${herokuBaseURL}posts/allPosts`, {
+      const result = await Axios.get("http://localhost:5000/posts/allPosts", {
         headers: { "x-auth-token": localStorage.getItem("auth-token") },
       });
       // console.log(result);
@@ -32,6 +40,19 @@ export default function PostCarousel() {
     };
     getPosts();
   }, []);
+
+  // useEffect(() => {
+  //   const script = document.createElement("script");
+
+  //   script.src = "../../script.js";
+  //   script.async = true;
+
+  //   document.body.appendChild(script);
+
+  //   // return () => {
+  //   //   document.body.removeChild(script);
+  //   // }
+  // }, []);
 
   return (
     <Carousel
