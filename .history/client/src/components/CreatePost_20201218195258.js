@@ -91,80 +91,80 @@ export default function CreatePost() {
           console.log(err);
         });
     }
-  }
-    return (
-      <div
-        className="card input-field"
-        style={{
-          margin: "30px auto",
-          maxWidth: "800px",
-          maxHeight: "1000px",
-          padding: "20px",
-          textAlign: "center",
-        }}
+
+  return (
+    <div
+      className="card input-field"
+      style={{
+        margin: "30px auto",
+        maxWidth: "800px",
+        maxHeight: "1000px",
+        padding: "20px",
+        textAlign: "center",
+      }}
+    >
+      {error && (
+        <ErrorNotice message={error} clearError={() => setError(undefined)} />
+      )}
+      <input
+        type="text"
+        placeholder="title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <input
+        type="text"
+        placeholder="body"
+        value={body}
+        onChange={(e) => setBody(e.target.value)}
+      />
+      <form action="#">
+        <div className="file-field input-field">
+          <div className="btn #64b5f6 blue darken-1">
+            <span>Upload an image or gif</span>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImage(e.target.files[0])}
+            />
+          </div>
+          <div className="file-path-wrapper">
+            <input
+              className="file-path validate"
+              type="text"
+              placeholder="Please upload an image"
+              value={image.name}
+            />
+          </div>
+        </div>
+      </form>
+      <h6>or </h6>
+      <form action="#">
+        <div className="file-field input-field">
+          <div className="btn #64b5f6 blue darken-1">
+            <span>Upload a video</span>
+            <input
+              type="file"
+              accept="video/*"
+              onChange={(e) => setVideo(e.target.files[0])}
+            />
+          </div>
+          <div className="file-path-wrapper">
+            <input
+              className="file-path validate"
+              type="text"
+              placeholder="Please upload a video"
+              value={video.name}
+            />
+          </div>
+        </div>
+      </form>
+      <button
+        className="btn waves-effect waves-light #64b5f6 blue darken-1"
+        onClick={() => postDetails()}
       >
-        {error && (
-          <ErrorNotice message={error} clearError={() => setError(undefined)} />
-        )}
-        <input
-          type="text"
-          placeholder="title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="body"
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-        />
-        <form action="#">
-          <div className="file-field input-field">
-            <div className="btn #64b5f6 blue darken-1">
-              <span>Upload an image or gif</span>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setImage(e.target.files[0])}
-              />
-            </div>
-            <div className="file-path-wrapper">
-              <input
-                className="file-path validate"
-                type="text"
-                placeholder="Please upload an image"
-                value={image.name}
-              />
-            </div>
-          </div>
-        </form>
-        <h6>or </h6>
-        <form action="#">
-          <div className="file-field input-field">
-            <div className="btn #64b5f6 blue darken-1">
-              <span>Upload a video</span>
-              <input
-                type="file"
-                accept="video/*"
-                onChange={(e) => setVideo(e.target.files[0])}
-              />
-            </div>
-            <div className="file-path-wrapper">
-              <input
-                className="file-path validate"
-                type="text"
-                placeholder="Please upload a video"
-                value={video.name}
-              />
-            </div>
-          </div>
-        </form>
-        <button
-          className="btn waves-effect waves-light #64b5f6 blue darken-1"
-          onClick={() => postDetails()}
-        >
-          POST
-        </button>
-      </div>
-    );
-}
+        POST
+      </button>
+    </div>
+  );
+};
