@@ -41,7 +41,6 @@ mongoose
   });
 
 // set up routes
-app.get('/', (req, res) => { res.send('Hello from Express!'); });
 app.use("/users", require("./routes/userRouter"));
 app.use("/posts", require("./routes/postRouter"));
 app.use("/messages", require("./routes/twilioRouter"));
