@@ -10,7 +10,7 @@
   },
   "engines": {
     "node": "10.16.0"
-  },
+},
   "author": "557 project",
   "license": "ISC",
   "dependencies": {
