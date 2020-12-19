@@ -1,6 +1,6 @@
-// /* eslint-disable no-console */
-// /* eslint-disable import/prefer-default-export */
-// /* eslint-disable no-unused-vars */
+/* eslint-disable no-console */
+/* eslint-disable import/prefer-default-export */
+/* eslint-disable no-unused-vars */
 export const setupWSConnection = (updateContacts, updateMessages, texts) => {
   // if not registered, do nothing
   if (sessionStorage.getItem('token') === null) {
