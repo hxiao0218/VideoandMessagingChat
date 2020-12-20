@@ -289,19 +289,9 @@ function MessageChat({ user, contactList }) {
       console.log('msg component recipient, userids', contact, userId);
       const resp = await getMessages(contact, userId);
       console.log('getMessages Resp', resp);
-      let new_sid;
-      let mediaResp;
-      console.log('old conversation id', conversationId);
-      if (!conversationId) { // create conversation + persist sid
-          new_sid = await createConversation(contact, contactCID);
-          console.log(new_sid);
-          setConversationId(new_sid);
-          console.log('[new conversationid]: ', new_sid);
-      } else {
-        mediaResp = await getMessagesByConversation(new_sid || conversationId, userId, true);
-        mediaResp = mediaResp.filter((x) => x.mediaURL); // filter false values
-        console.log('mediaResp', mediaResp);
-      }
+      let mediaResp = await getMessagesByConversation(conversationId, userId, true);
+      mediaResp = mediaResp.filter((x) => x.mediaURL); // filter false values
+      console.log('mediaResp', mediaResp);
       // prevent repetitive re-rendering
       if ((!resp && !mediaResp) || (resp.length + mediaResp.length === messageList.length)) return;
       const messageListBeforeSort = [...resp, ...mediaResp];

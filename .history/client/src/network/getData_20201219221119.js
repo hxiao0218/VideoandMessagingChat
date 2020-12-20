@@ -11,6 +11,24 @@ const auth = {
 };
 const baseTwilioMediaURL = 'https://mcs.us1.twilio.com/v1/Services/IS960c89f737814fd7baa53c4cf10a34b8/Media/';
 const herokuBaseURL = 'https://server2-heroku-new.herokuapp.com/';
+const cors_api_url = 'https://ancient-river-99811.herokuapp.com/';
+
+(function() {
+  var cors_api_host = 'server2-heroku-new.herokuapp.com';
+  var cors_api_url = 'https://' + cors_api_host + '/';
+  var slice = [].slice;
+  var origin = window.location.protocol + '//' + window.location.host;
+  var open = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function() {
+      var args = slice.call(arguments);
+      var targetOrigin = /^https?:\/\/([^\/]+)/i.exec(args[1]);
+      if (targetOrigin && targetOrigin[0].toLowerCase() !== origin &&
+          targetOrigin[1] !== cors_api_host) {
+          args[1] = cors_api_url + args[1];
+      }
+      return open.apply(this, args);
+  };
+})();
 
 export const getMessages = async (recipientId, contactId) => {
   console.log('2 ids', recipientId, contactId);
@@ -133,10 +151,6 @@ export const createConversation = async (contact, contactCID) => {
   const res = await axios.post(`${herokuBaseURL}messages/conversation`, {
     contact,
     contactCID,
-  }, {
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest'
-    }
   });
   // console.log(res);
   if (res.status !== 200) {
@@ -194,7 +208,7 @@ export const twilioDeleteConversation = async (conversationId) => {
 };
 
 export const twilioMediaAuth = async () => {
-  const res = await axios.get(`https://mcs.us1.twilio.com/v1/Services`, {
+  const res = await axios.get(`${cors_api_url}https://mcs.us1.twilio.com/v1/Services`, {
     auth: {
       username: 'AC9eb25c66af41aae40b9be69660922a5d',
       password: 'fc6e0c4916cf4f33d087fc67cde3df43',
@@ -207,7 +221,7 @@ export const twilioMediaAuth = async () => {
 export const twilioMediaUpload = async (binStr, imageType) => {
   const res = await axios({
     method: 'post',
-    url: `https://mcs.us1.twilio.com/v1/Services/IS960c89f737814fd7baa53c4cf10a34b8/Media`,
+    url: `${cors_api_url}https://mcs.us1.twilio.com/v1/Services/IS960c89f737814fd7baa53c4cf10a34b8/Media`,
     data: binStr,
     headers: { 'Content-Type': imageType },
     auth,

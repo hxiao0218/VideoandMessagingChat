@@ -12,6 +12,23 @@ const auth = {
 const baseTwilioMediaURL = 'https://mcs.us1.twilio.com/v1/Services/IS960c89f737814fd7baa53c4cf10a34b8/Media/';
 const herokuBaseURL = 'https://server2-heroku-new.herokuapp.com/';
 
+(function() {
+  var cors_api_host = 'server2-heroku-new.herokuapp.com';
+  var cors_api_url = 'https://' + cors_api_host + '/';
+  var slice = [].slice;
+  var origin = window.location.protocol + '//' + window.location.host;
+  var open = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function() {
+      var args = slice.call(arguments);
+      var targetOrigin = /^https?:\/\/([^\/]+)/i.exec(args[1]);
+      if (targetOrigin && targetOrigin[0].toLowerCase() !== origin &&
+          targetOrigin[1] !== cors_api_host) {
+          args[1] = cors_api_url + args[1];
+      }
+      return open.apply(this, args);
+  };
+})();
+
 export const getMessages = async (recipientId, contactId) => {
   console.log('2 ids', recipientId, contactId);
   const token = localStorage.getItem('auth-token');
@@ -133,10 +150,6 @@ export const createConversation = async (contact, contactCID) => {
   const res = await axios.post(`${herokuBaseURL}messages/conversation`, {
     contact,
     contactCID,
-  }, {
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest'
-    }
   });
   // console.log(res);
   if (res.status !== 200) {

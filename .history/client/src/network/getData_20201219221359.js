@@ -133,10 +133,6 @@ export const createConversation = async (contact, contactCID) => {
   const res = await axios.post(`${herokuBaseURL}messages/conversation`, {
     contact,
     contactCID,
-  }, {
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest'
-    }
   });
   // console.log(res);
   if (res.status !== 200) {

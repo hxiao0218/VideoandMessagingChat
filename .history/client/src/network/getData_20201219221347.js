@@ -12,6 +12,7 @@ const auth = {
 const baseTwilioMediaURL = 'https://mcs.us1.twilio.com/v1/Services/IS960c89f737814fd7baa53c4cf10a34b8/Media/';
 const herokuBaseURL = 'https://server2-heroku-new.herokuapp.com/';
 
+
 export const getMessages = async (recipientId, contactId) => {
   console.log('2 ids', recipientId, contactId);
   const token = localStorage.getItem('auth-token');
@@ -133,10 +134,6 @@ export const createConversation = async (contact, contactCID) => {
   const res = await axios.post(`${herokuBaseURL}messages/conversation`, {
     contact,
     contactCID,
-  }, {
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest'
-    }
   });
   // console.log(res);
   if (res.status !== 200) {

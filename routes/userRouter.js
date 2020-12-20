@@ -16,10 +16,17 @@ const { ObjectID } = require("mongodb");
 const mailgun = require("mailgun-js");
 const redis = require("redis");
 const { RateLimiterRedis } = require("rate-limiter-flexible");
+const Twilio = require("twilio");
 const User = require("../models/userModel");
 const Message = require("../models/messageModel");
 const Contact = require("../models/contactModel");
 const auth = require("../middleware/auth");
+const config = require("./config");
+
+const twilioClient = Twilio(
+  config.TWILIO_ACCOUNT_SID,
+  config.TWILIO_AUTH_TOKEN
+);
 
 const DOMAIN = "sandbox69ea79e0299949be9cbbafac8db9a415.mailgun.org";
 const mg = mailgun({ apiKey: process.env.MAILGUN_APIKEY, domain: DOMAIN });
@@ -452,11 +459,6 @@ router.get('/addfriend', auth, async (req, res) => {
   const user = req.query.username;
   const contact = req.query.contactname;
   // console.log('user, contact', user, contact);
-  const newContact = new Contact({
-    user1: ObjectId(user),
-    user2: ObjectId(contact),
-    conversationSID: '',
-  });
   await User.findByIdAndUpdate(
     ObjectID(user),
     {
@@ -483,9 +485,22 @@ router.get('/addfriend', auth, async (req, res) => {
   );
   console.log("back end add friend api");
   try {
-    const savedContact = newContact.save();
-    console.log("back end add contact success!");
-    res.json(savedContact);
+    twilioClient.conversations.conversations
+      .create({
+        uniqueName: contact,
+      })
+      .then((conversation) => {
+        console.log("conversation sid", conversation.sid);
+        // save conversation sid to contact db
+        const newContact = new Contact({
+          user1: ObjectId(user),
+          user2: ObjectId(contact),
+          conversationSID: conversation.sid,
+        });
+        const savedContact = newContact.save();
+        console.log("back end add contact success!");
+        res.json(savedContact);
+      });
   } catch (error) {
     console.log("back end add contact failed");
     res.status(500).json({ error: error.message });
